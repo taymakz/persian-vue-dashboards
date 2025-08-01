@@ -70,8 +70,8 @@ function handleDeletion(id: number) {
           <AppMediasMediaAdd @created="handleCreation" />
         </div>
 
-      <!-- Filters Section -->
-        <div class="flex items-center justify-between">
+        <!-- Filters Section -->
+        <div class="flex items-center justify-between gap-4">
           <InputSecondary
             v-model="searchValue" label="جستجو..." autocomplete="off" class="max-w-sm w-full"
             icon="icon-[ep--search]"

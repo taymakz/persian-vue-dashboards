@@ -120,10 +120,7 @@ function getFileType(filename: string): MediaFileType {
   <Dialog v-if="isDesktop" v-model:open="isOpen">
     <DialogTrigger as-child>
       <MediaUploadZone>
-        <div class="flex items-center gap-2">
-          <span class="icon-[lucide--plus] size-5" />
-          اضافه کردن رسانه جدید
-        </div>
+        اضافه کردن رسانه جدید
       </MediaUploadZone>
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
@@ -142,10 +139,7 @@ function getFileType(filename: string): MediaFileType {
   <Drawer v-else v-model:open="isOpen">
     <DrawerTrigger as-child>
       <MediaUploadZone>
-        <div class="flex items-center gap-2">
-          <span class="icon-[lucide--plus] size-5" />
-          اضافه کردن رسانه جدید
-        </div>
+        اضافه کردن رسانه جدید
       </MediaUploadZone>
     </DrawerTrigger>
     <DrawerContent>
