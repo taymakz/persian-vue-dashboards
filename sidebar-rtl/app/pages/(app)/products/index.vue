@@ -81,6 +81,12 @@ const firstInitLoading = ref(false)
             لیست محصولات شما در اینجا نمایش داده می‌شود. می‌توانید محصولات را جستجو و مرتب کنید.
           </AppLayoutPageDescription>
         </div>
+        <Button as-child> 
+          <NuxtLink to="/products/create">
+            <span class="icon-[lucide--plus] size-4"></span>
+            محصول جدید
+          </NuxtLink>
+        </Button>
       </div>
     </AppLayoutPageHeader>
 
