@@ -96,9 +96,9 @@ function handleSelect() {
     <CardContent class="space-y-3">
       <!-- Preview Area -->
       <div class="aspect-video w-full  bg-muted flex items-center justify-center overflow-hidden">
-        <template v-if="item.file_type === 'PHOTO' && item.media_url">
+        <template v-if="item.placeholder_url || item.media_url">
           <img
-            :src="item.media_url"
+            :src="item.media_url || item.placeholder_url"
             :alt="item.caption"
             class="w-full h-full object-cover"
             @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
