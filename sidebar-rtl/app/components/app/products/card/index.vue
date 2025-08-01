@@ -17,7 +17,7 @@ function getRandomInt(min: number, max: number) {
     <NuxtLink :to="`/products/${item.id}`" class="absolute inset-0 z-10" />
     <div>
       <!-- image -->
-      <div class="w-full h-60 2xl:h-70 bg-accent/50 border-b p-4 ">
+      <div class="w-full h-60  bg-accent/50 border-b p-4 ">
         <img :src="`https://picsum.photos/400/400?random=${getRandomInt(1, 100)}`" :alt="item.title" class="rounded-lg w-full h-full object-cover border ">
         <!-- <div v-else class="icon-[carbon--no-image] size-full text-muted-foreground"></div> -->
       </div>
