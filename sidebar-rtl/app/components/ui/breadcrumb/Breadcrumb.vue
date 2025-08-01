@@ -1,13 +1,13 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { HTMLAttributes } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   class?: HTMLAttributes['class']
 }>()
 </script>
 
 <template>
-  <h4 :class="cn('text-muted-foreground text-sm mt-1.5 ', $props.class)">
+  <nav aria-label="breadcrumb" :class="props.class">
     <slot />
-  </h4>
+  </nav>
 </template>

@@ -17,7 +17,7 @@ defineProps<{
 </script>
 
 <template>
-  <Breadcrumb v-if="links.length > 0">
+  <Breadcrumb v-if="links.length > 0" class="container mb-6">
     <BreadcrumbList>
       <BreadcrumbSeparator />
 
