@@ -11,12 +11,12 @@
         </AppLayoutPageHeader>
         <AppLayoutPageContent>
           <div class="grid grid-cols-12 gap-8 container max-w-screen-lg">
-            <div class="col-span-3">
+            <div class="col-span-12 lg:col-span-3">
               <div class="sticky top-14">
                 <AppAccountSidebar />
               </div>
             </div>
-            <div class="col-span-9">
+            <div class="col-span-12 lg:col-span-9 ">
               <slot />
             </div>
           </div>
