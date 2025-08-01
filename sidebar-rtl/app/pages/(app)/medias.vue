@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { MediaFileType, MediaType } from '~/types/media'
-import { mockMediaData } from '~/data/media'
 import Input from '~/components/ui/input/Input.vue'
 import InputSecondary from '~/components/ui/input/InputSecondary.vue'
+import { mockMediaData } from '~/data/media'
 
 useHead({
   title: 'رسانه ها',
@@ -70,17 +70,12 @@ function handleDeletion(id: number) {
           <AppMediasMediaAdd @created="handleCreation" />
         </div>
 
-        <!-- Filters Section -->
+      <!-- Filters Section -->
         <div class="flex items-center justify-between">
           <InputSecondary
-            v-model="searchValue"
-            label="جستجو کنید..."
-            class="max-w-sm w-full"
-          >
-            <template #prefix>
-              <Icon name="lucide:search" class="size-4 text-muted-foreground" />
-            </template>
-          </InputSecondary>
+            v-model="searchValue" label="جستجو..." autocomplete="off" class="max-w-sm w-full"
+            icon="icon-[ep--search]"
+          />
 
           <AppMediasMediaFilters v-model="selectedTypes" />
         </div>
