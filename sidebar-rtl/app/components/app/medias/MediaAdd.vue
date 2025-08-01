@@ -119,7 +119,10 @@ function getFileType(filename: string): MediaFileType {
   <!-- Desktop Dialog -->
   <Dialog v-if="isDesktop" v-model:open="isOpen">
     <DialogTrigger as-child>
-      <MediaUploadZone>
+     <template v-if="$slots.default">
+          <slot />
+        </template>
+      <MediaUploadZone v-else>
         اضافه کردن رسانه جدید
       </MediaUploadZone>
     </DialogTrigger>
@@ -138,7 +141,10 @@ function getFileType(filename: string): MediaFileType {
   <!-- Mobile Drawer -->
   <Drawer v-else v-model:open="isOpen">
     <DrawerTrigger as-child>
-      <MediaUploadZone>
+        <template v-if="$slots.default">
+          <slot />
+        </template>
+      <MediaUploadZone v-else>
         اضافه کردن رسانه جدید
       </MediaUploadZone>
     </DrawerTrigger>

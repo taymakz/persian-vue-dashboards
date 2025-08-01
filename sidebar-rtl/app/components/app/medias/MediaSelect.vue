@@ -10,13 +10,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -171,12 +171,7 @@ const selectionCountText = computed(() => {
 <template>
   <!-- Define the reusable template -->
   <UseTemplate>
-    <div class="space-y-4">
-      <!-- Upload Section -->
-      <div class="border-b pb-4">
-        <MediaAdd @created="handleMediaCreation" />
-      </div>
-
+    <div class="flex flex-col gap-3">
       <!-- Search and Filters -->
       <div class="flex items-center justify-between gap-4">
         <InputSecondary
@@ -208,21 +203,13 @@ const selectionCountText = computed(() => {
       </div>
 
       <!-- Media Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
         <div
           v-for="item in filteredMedias"
           :key="item.id"
           class="relative group cursor-pointer"
           @click="toggleMediaSelection(item)"
         >
-          <!-- Selection Checkbox -->
-          <div class="absolute top-2 left-2 z-10">
-            <Checkbox
-              :checked="isMediaSelected(item)"
-              class="bg-background/80 border-2"
-            />
-          </div>
-
           <!-- Media Card -->
           <div
             class="relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200"
@@ -263,9 +250,9 @@ const selectionCountText = computed(() => {
             <!-- Selected Overlay -->
             <div
               v-if="isMediaSelected(item)"
-              class="absolute inset-0 bg-primary/10 flex items-center justify-center"
+              class="absolute left-2 top-2 bg-primary text-primary-foreground rounded-full size-6 p-0.5 flex items-center justify-center"
             >
-              <span class="icon-[lucide--check] size-8 text-primary" />
+              <span class="icon-[lucide--check] size-full " />
             </div>
           </div>
 
@@ -302,9 +289,39 @@ const selectionCountText = computed(() => {
           {{ searchValue || selectedTypes.length > 0 ? 'فیلترهای خود را تغییر دهید' : 'رسانه جدیدی اضافه کنید' }}
         </p>
       </div>
+    </div>
+  </UseTemplate>
 
+  <!-- Desktop Dialog -->
+  <Dialog v-if="isDesktop" v-model:open="isOpen">
+    <DialogTrigger as-child>
+      <Button variant="outline" class=" w-full">
+        <span :class="triggerIcon" class="size-4" />
+        {{ triggerText }}
+        <Badge v-if="modelValue.length > 0" variant="secondary" class="ml-2">
+          {{ modelValue.length }}
+        </Badge>
+      </Button>
+    </DialogTrigger>
+    <DialogContent class="sm:max-w-4xl grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]">
+      <DialogHeader class="pt-4 px-4">
+        <DialogTitle>{{ title }}</DialogTitle>
+        <DialogDescription>{{ description }}</DialogDescription>
+      </DialogHeader>
+      <!-- Use the reusable template here -->
+      <div class="p-4 overflow-y-auto">
+        <MediaSelectContent />
+      </div>
       <!-- Action Buttons -->
-      <div class="flex gap-2 pt-4 border-t">
+      <DialogFooter class=" flex gap-2 pt-4 bg-card z-10 border-t p-4">
+        <Button variant="outline" @click="cancelSelection">
+          بستن
+        </Button>
+        <MediaAdd @created="handleMediaCreation">
+          <Button variant="success">
+            رسانه جدید
+          </Button>
+        </MediaAdd>
         <Button
           class="flex-1"
           :disabled="localSelectedMedias.length === 0"
@@ -313,38 +330,14 @@ const selectionCountText = computed(() => {
           <span class="icon-[lucide--check] size-4 ml-2" />
           {{ localSelectedMedias.length > 0 ? 'تأیید انتخاب' : 'انتخاب کنید' }}
         </Button>
-        <Button variant="outline" @click="cancelSelection">
-          لغو
-        </Button>
-      </div>
-    </div>
-  </UseTemplate>
-
-  <!-- Desktop Dialog -->
-  <Dialog v-if="isDesktop" v-model:open="isOpen">
-    <DialogTrigger as-child>
-      <Button variant="outline" class="gap-2">
-        <span :class="triggerIcon" class="size-4" />
-        {{ triggerText }}
-        <Badge v-if="modelValue.length > 0" variant="secondary" class="ml-2">
-          {{ modelValue.length }}
-        </Badge>
-      </Button>
-    </DialogTrigger>
-    <DialogContent class="sm:max-w-4xl max-h-[90vh] overflow-hidden">
-      <DialogHeader>
-        <DialogTitle>{{ title }}</DialogTitle>
-        <DialogDescription>{{ description }}</DialogDescription>
-      </DialogHeader>
-      <!-- Use the reusable template here -->
-      <MediaSelectContent />
+      </DialogFooter>
     </DialogContent>
   </Dialog>
 
   <!-- Mobile Drawer -->
   <Drawer v-else v-model:open="isOpen">
     <DrawerTrigger as-child>
-      <Button variant="outline" class="gap-2">
+      <Button variant="outline" class=" w-full">
         <span :class="triggerIcon" class="size-4" />
         {{ triggerText }}
         <Badge v-if="modelValue.length > 0" variant="secondary" class="ml-2">
@@ -352,14 +345,35 @@ const selectionCountText = computed(() => {
         </Badge>
       </Button>
     </DrawerTrigger>
-    <DrawerContent class="max-h-[90vh]">
-      <DrawerHeader class="text-left">
+    <DrawerContent class="max-h-[90vh] ">
+      <DrawerHeader>
         <DrawerTitle>{{ title }}</DrawerTitle>
         <DrawerDescription>{{ description }}</DrawerDescription>
       </DrawerHeader>
-      <div class="px-4 overflow-hidden">
+      <div class="h-full overflow-y-auto px-4  pb-20">
         <!-- Use the reusable template here -->
+
         <MediaSelectContent />
+
+        <!-- Action Buttons -->
+        <div class="fixed bottom-0 inset-x-0 flex gap-2 pt-4 bg-card z-10 border-t p-4">
+          <Button variant="outline" @click="cancelSelection">
+            بستن
+          </Button>
+          <MediaAdd @created="handleMediaCreation">
+            <Button variant="success">
+              رسانه جدید
+            </Button>
+          </MediaAdd>
+          <Button
+            class="flex-1"
+            :disabled="localSelectedMedias.length === 0"
+            @click="confirmSelection"
+          >
+            <span class="icon-[lucide--check] size-4 ml-2" />
+            {{ localSelectedMedias.length > 0 ? 'تأیید انتخاب' : 'انتخاب کنید' }}
+          </Button>
+        </div>
       </div>
     </DrawerContent>
   </Drawer>
