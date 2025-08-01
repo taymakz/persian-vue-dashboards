@@ -70,11 +70,6 @@ const cards = [
           <CardTitle class="text-base font-medium">
             {{ card.title }}
           </CardTitle>
-          <div class="flex items-center gap-2">
-            <Button variant="ghost" class="size-8">
-              <LucideMoreHorizontal class="size-4" />
-            </Button>
-          </div>
         </div>
         <div class="col-span-2 flex flex-col gap-2">
           <span class="xl:text-lg 2xl:text-xl font-medium tracking-tighter tabular-nums">

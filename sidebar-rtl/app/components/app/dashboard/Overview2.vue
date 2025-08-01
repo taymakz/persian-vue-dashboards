@@ -4,7 +4,7 @@ const cards = [
     title: 'سفارش‌ها',
     value: '۴۲۷٬۲۹۶',
     percent: '+۱۲٪',
-    percentColor: 'text-emerald-500',
+    percentColor: 'text-success',
     arrow: '↗',
     description: 'نسبت به هفته قبل',
   },
@@ -12,7 +12,7 @@ const cards = [
     title: 'مشتریان',
     value: '۳۷٬۴۲۹',
     percent: '+۴۲٪',
-    percentColor: 'text-emerald-500',
+    percentColor: 'text-success',
     arrow: '↗',
     description: 'نسبت به هفته قبل',
   },
@@ -20,7 +20,7 @@ const cards = [
     title: 'درآمد',
     value: '۱۲٬۸۰۰٬۰۰۰ تومان',
     percent: '+۸٪',
-    percentColor: 'text-emerald-500',
+    percentColor: 'text-success',
     arrow: '↗',
     description: 'نسبت به هفته قبل',
   },
@@ -28,7 +28,7 @@ const cards = [
     title: 'بازدیدها',
     value: '۳٬۴۹۷',
     percent: '-۱۷٪',
-    percentColor: 'text-red-500',
+    percentColor: 'text-warning',
     arrow: '↘',
     description: 'نسبت به هفته قبل',
   },
@@ -36,7 +36,7 @@ const cards = [
 </script>
 
 <template>
-  <div class="grid grid-cols-2 min-lg:grid-cols-4 border border-border rounded-xl bg-card bg-gradient-to-br from-sidebar/60 to-sidebar">
+  <div class="grid grid-cols-2 min-xl:grid-cols-4 border border-border rounded-xl bg-card bg-gradient-to-br from-sidebar/60 to-sidebar">
     <div v-for="(card, i) in cards" :key="i" class="relative p-4 lg:p-5 group before:absolute before:inset-y-8 before:right-0 before:w-px before:bg-gradient-to-b before:from-input/30 before:via-input before:to-input/30 last:before:hidden">
       <div class="relative flex items-center gap-4">
         <!-- Icon placeholder, you can add a dynamic icon if needed -->
@@ -46,7 +46,7 @@ const cards = [
         </div>
         <div>
           <a href="#" class="font-medium tracking-widest text-xs uppercase text-muted-foreground/60 before:absolute before:inset-0">{{ card.title }}</a>
-          <div class="text-xl font-semibold mb-2">
+          <div class="text-sm lg:text-base xl:text-lg font-semibold mb-2 ">
             {{ card.value }}
           </div>
           <div class="text-xs text-muted-foreground/60">
