@@ -2,12 +2,14 @@
 import type { ProductCardType } from '~/types/product'
 import Badge from '~/components/ui/badge/Badge.vue'
 import Card from '~/components/ui/card/Card.vue'
-import { useFaTimeAgo } from '~/composables/time/useFaTimeAgo';
+import { useFaTimeAgo } from '~/composables/time/useFaTimeAgo'
 
 const props = defineProps<{
   item: ProductCardType
 }>()
-
+function getRandomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 </script>
 
 <template>
@@ -16,8 +18,8 @@ const props = defineProps<{
     <div>
       <!-- image -->
       <div class="w-full h-60 2xl:h-70 bg-accent/50 border-b p-4 ">
-        <img v-if="item.image_url" :src="useGetImageUrl(item.image_url)" :alt="item.title" class="rounded-lg w-full h-full object-cover border ">
-        <div v-else class="icon-[carbon--no-image] size-full text-muted-foreground"></div>
+        <img :src="`https://picsum.photos/400/400?random=${getRandomInt(1, 100)}`" :alt="item.title" class="rounded-lg w-full h-full object-cover border ">
+        <!-- <div v-else class="icon-[carbon--no-image] size-full text-muted-foreground"></div> -->
       </div>
       <div class="p-4">
         <div class="flex items-center gap-2 mb-1.5 h-5.5">
