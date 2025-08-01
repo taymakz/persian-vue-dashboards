@@ -29,6 +29,11 @@ const links: LinkType[] = [
       { to: '/products/', label: 'برندها' },
     ],
   },
+    {
+    to: '/fields',
+    icon: 'icon-[hugeicons--license-maintenance]',
+    label: 'فیلد ها (DEV)',
+  },
   {
     to: '/account/settings',
     icon: 'icon-[clarity--administrator-line]',
