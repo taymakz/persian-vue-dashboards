@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="pb-8">
+  <div class="pb-8 container">
     <slot />
   </div>
 </template>

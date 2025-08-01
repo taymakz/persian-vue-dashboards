@@ -107,15 +107,15 @@ async function updatePassword() {
               <InputSecondary v-model="nameForm.first_name" label="نام" class="w-full" name="first_name" />
               <InputSecondary v-model="nameForm.last_name" label="نام خانوادگی" class="w-full" name="last_name" />
             </div>
-            <div class="px-6 py-3 flex justify-between items-center">
+            <div class="px-6 py-3 flex justify-between items-center max-sm:flex-col  gap-4">
               <p class="text-muted-foreground text-sm">
                 لطفا از 32 کاراکتر کمتر استفاده کنید
               </p>
-              <div class="flex gap-2">
-                <Button variant="outline" :disabled="!isNameChanged || nameForm.loading" @click="() => { nameForm.first_name = userDetail?.first_name || ''; nameForm.last_name = userDetail?.last_name || '' }">
+              <div class="flex gap-2 max-sm:w-full ">
+                <Button variant="outline" class="max-sm:w-full" :disabled="!isNameChanged || nameForm.loading" @click="() => { nameForm.first_name = userDetail?.first_name || ''; nameForm.last_name = userDetail?.last_name || '' }">
                   لغو
                 </Button>
-                <Button variant="default" :disabled="!isNameChanged || nameForm.loading" @click="updateName">
+                <Button variant="default" class="max-sm:w-full" :disabled="!isNameChanged || nameForm.loading" @click="updateName">
                   {{ nameForm.loading ? 'در حال ذخیره...' : 'ذخیره' }}
                 </Button>
               </div>
@@ -142,15 +142,15 @@ async function updatePassword() {
                 type="password" name="confirm_password"
               />
             </div>
-            <div class="px-6 py-3 flex justify-between items-center">
+            <div class="px-6 py-3 flex justify-between items-center max-sm:flex-col gap-4">
               <p class="text-muted-foreground text-sm">
                 حداقل 8 کاراکتر شامل حروف بزرگ، کوچک و اعداد
               </p>
-              <div class="flex gap-2">
-                <Button variant="outline" :disabled="!isPasswordValid || passwordForm.loading" @click="() => { passwordForm.password = ''; passwordForm.confirm_password = '' }">
+              <div class="flex gap-2 max-sm:w-full">
+                <Button variant="outline" class="w-full" :disabled="!isPasswordValid || passwordForm.loading" @click="() => { passwordForm.password = ''; passwordForm.confirm_password = '' }">
                   لغو
                 </Button>
-                <Button variant="default" :disabled="!isPasswordValid || passwordForm.loading" @click="updatePassword">
+                <Button variant="default" class="w-full" :disabled="!isPasswordValid || passwordForm.loading" @click="updatePassword">
                   {{ passwordForm.loading ? 'در حال ذخیره...' : 'ذخیره' }}
                 </Button>
               </div>

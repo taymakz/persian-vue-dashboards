@@ -41,10 +41,10 @@ onMounted(() => {
                 :to="child.to" :class="cn(
                   'px-2 py-1.5 rounded-md flex items-center gap-3 duration-200',
                   {
-                    'bg-gradient-to-l from-primary/20 to-primary/5 dark:from-primary-lighter/20 dark:to-primary-lighter/5':
+                    'text-primary bg-primary/10':
                       isCurrentRoute(child.to!),
                   },
-                  { 'hover:bg-secondary': !isCurrentRoute(child.to!) },
+                  { 'hover:bg-accent/50 hover:text-accent-foreground/80': !isCurrentRoute(child.to!) },
                 )"
               >
                 {{ child.label }}
