@@ -89,7 +89,7 @@ function handleDeletion(id: number) {
 
         <!-- Empty State -->
         <div v-if="filteredMedias.length === 0" class="text-center py-12">
-          <Icon name="lucide:file-x" class="size-16 text-muted-foreground mx-auto mb-4" />
+          <span  class="icon-[lucide--file-x] size-16 text-muted-foreground mx-auto mb-4" />
           <h3 class="text-lg font-medium text-foreground mb-2">
             هیچ رسانه‌ای یافت نشد
           </h3>

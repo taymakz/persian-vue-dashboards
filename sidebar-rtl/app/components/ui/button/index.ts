@@ -21,9 +21,9 @@ export const buttonVariants = cva(
         success:
           'bg-success hover:bg-success/90 text-black shadow',
         alert:
-          'bg-alert hover:bg-alert/90 text-white dark:bg-alert/15 dark:text-alert-lighter shadow dark:hover:bg-alert/20',
+          'bg-alert hover:bg-alert/80 text-black shadow',
         warning:
-          'bg-warning hover:bg-warning/80 text-white shadow',
+          'bg-warning hover:bg-warning/80 text-black shadow',
       },
       size: {
         default: 'h-10 px-4 py-2',

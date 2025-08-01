@@ -53,15 +53,15 @@ const loading = ref(false)
 const fileTypeIcon = computed(() => {
   switch (item.file_type) {
     case 'PHOTO':
-      return 'lucide:image'
+      return 'icon-[lucide--image]'
     case 'VIDEO':
-      return 'lucide:video'
+      return 'icon-[lucide--video]'
     case 'ANIMATION':
-      return 'lucide:film'
+      return 'icon-[lucide--film]'
     case 'DOCUMENT':
-      return 'lucide:file-text'
+      return 'icon-[lucide--file-text]'
     default:
-      return 'lucide:file'
+      return 'icon-[lucide--file]'
   }
 })
 
@@ -140,17 +140,18 @@ function handleDownload() {
     <div class="grid items-start gap-4 px-4">
       <!-- Media Preview -->
       <div class="space-y-4">
-        <div class="aspect-video w-full rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-          <template v-if="item.file_type === 'PHOTO' && item.media_url">
+        <div class="aspect-video w-full rounded-lg bg-card border flex items-center justify-center overflow-hidden">
+          <template v-if="item.placeholder_url || item.media_url">
             <img
-              :src="item.media_url"
+              :src="item.media_url || item.placeholder_url"
+
               :alt="item.caption"
-              class="w-full h-full object-contain"
+              class="w-full h-full object-cover"
             >
           </template>
           <template v-else>
             <div class="flex flex-col items-center justify-center text-muted-foreground">
-              <Icon :name="fileTypeIcon" class="size-16 mb-3" />
+              <span :class="fileTypeIcon" class="size-16 mb-3" />
               <span class="text-sm">پیش‌نمایش در دسترس نیست</span>
             </div>
           </template>
@@ -170,36 +171,45 @@ function handleDownload() {
 
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="space-y-1">
-            <span class="text-muted-foreground">نوع:</span>
+            <p class="text-muted-foreground">
+              نوع:
+            </p>
             <div class="flex items-center gap-2">
-              <Icon :name="fileTypeIcon" class="size-4" />
+              <span :class="fileTypeIcon" class="size-4" />
               {{ fileTypeLabel }}
             </div>
           </div>
 
           <div class="space-y-1">
-            <span class="text-muted-foreground">حجم:</span>
-            <span>{{ formatSize(item.size) }}</span>
+            <p class="text-muted-foreground">
+              حجم:
+            </p>
+            <p class="font-comfortaa">
+              {{ formatSize(item.size) }}
+            </p>
           </div>
 
           <div class="col-span-2 space-y-1">
-            <span class="text-muted-foreground">تاریخ ایجاد:</span>
-            <span>{{ formatDate(item.created_at) }}</span>
+            <p class="text-muted-foreground">
+              تاریخ ایجاد:
+            </p>
+            <p>{{ formatDate(item.created_at) }}</p>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
       <div class="flex flex-col sm:flex-row gap-2 pt-2">
-        <Button class="flex-1" @click="handleDownload">
-          <Icon name="lucide:download" class="size-4 ml-2" />
+        <Button class="w-full" @click="handleDownload">
+          <span class="icon-[lucide--download] size-4" />
           دانلود
         </Button>
 
         <AlertDialog v-model:open="deleteModal">
           <AlertDialogTrigger as-child>
-            <Button variant="alert" class="flex-1">
-              <Icon name="lucide:trash-2" class="size-4 ml-2" />
+            <Button variant="warning" class="w-full">
+              <span class="icon-[lucide--trash-2] size-4" />
+
               حذف
             </Button>
           </AlertDialogTrigger>
@@ -212,11 +222,10 @@ function handleDownload() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>لغو</AlertDialogCancel>
-              <AlertDialogAction :disabled="loading" @click="handleDelete">
-                <Icon v-if="loading" name="lucide:loader-2" class="size-4 ml-2 animate-spin" />
-                <Icon v-else name="lucide:trash-2" class="size-4 ml-2" />
-                {{ loading ? 'در حال حذف...' : 'حذف' }}
-              </AlertDialogAction>
+                <Button variant="warning" :loading @click="handleDelete">
+                  <span class="icon-[lucide--trash-2] size-4" />
+                  حذف
+                </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -241,23 +250,16 @@ function handleDownload() {
   <!-- Mobile Drawer -->
   <Drawer v-else v-model:open="isOpen">
     <DrawerContent class="max-h-[90vh]">
-      <DrawerHeader class="text-left">
+      <DrawerHeader>
         <DrawerTitle>جزئیات رسانه</DrawerTitle>
         <DrawerDescription>
           مشاهده اطلاعات کامل رسانه انتخاب شده
         </DrawerDescription>
       </DrawerHeader>
-      <div class="overflow-y-auto">
+      <div class="overflow-y-auto container pb-4">
         <!-- Use the reusable template here -->
         <MediaDetailContent />
       </div>
-      <DrawerFooter class="pt-2">
-        <DrawerClose as-child>
-          <Button variant="outline">
-            بستن
-          </Button>
-        </DrawerClose>
-      </DrawerFooter>
     </DrawerContent>
   </Drawer>
 </template>
