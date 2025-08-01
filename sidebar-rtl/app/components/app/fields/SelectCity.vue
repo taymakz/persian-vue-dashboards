@@ -33,7 +33,7 @@ const filteredCities = computed(() =>
 )
 
 function selectProvince(provinceValue: string) {
-  if(city.value) {
+  if (city.value) {
     city.value = ''
   }
   province.value = provinceValue
@@ -64,22 +64,20 @@ function openCitySelector() {
 <template>
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
-      <Button
-        type="button"
-        variant="outline"
-        class="w-full justify-between"
+      <div
+        class="w-full justify-between border  items-center flex py-3 px-3 rounded-md bg-input text-sm cursor-pointer hover:border-border-lighter"
         :class="{ 'text-muted-foreground': !city && !city }"
         @click="openCitySelector"
       >
         {{ (city) ? `${city} - ${province}` : 'انتخاب استان / شهر' }}
         <span class="icon-[lucide--chevron-left] size-5 text-muted-foreground" />
-      </Button>
+      </div>
     </PopoverTrigger>
-    
-    <PopoverContent class="w-80 p-4">
+
+    <PopoverContent class="w-80 p-0">
       <!-- Step 1: Province Selection -->
       <div v-if="step === 1">
-        <div class="mb-4">
+        <div class="mb-4 px-4 pt-4">
           <div class="font-medium mb-2 h-8 flex items-center">
             انتخاب استان
           </div>
@@ -89,7 +87,7 @@ function openCitySelector() {
             label="جستجوی استان..."
           />
         </div>
-        <div class="max-h-48 overflow-y-auto">
+        <div class="max-h-48 overflow-y-auto px-4 pb-4">
           <button
             v-for="provinceItem in filteredProvinces"
             :key="provinceItem"
@@ -103,7 +101,7 @@ function openCitySelector() {
 
       <!-- Step 2: City Selection -->
       <div v-if="step === 2">
-        <div class="mb-4">
+        <div class="mb-4 px-4 pt-4">
           <div class="flex items-center justify-between mb-2">
             <div class="font-medium">
               انتخاب شهر - {{ province }}
@@ -118,7 +116,7 @@ function openCitySelector() {
             class="h-10"
           />
         </div>
-        <div class="max-h-48 overflow-y-auto mb-4">
+        <div class="max-h-48 overflow-y-auto pb-4 px-4">
           <button
             v-for="cityItem in filteredCities"
             :key="cityItem.key"
