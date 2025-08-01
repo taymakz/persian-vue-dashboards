@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Overview2 from '@/components/app/dashboard/Overview2.vue'
 import Overview from '@/components/app/dashboard/Overview.vue'
 import Uptime from '~/components/app/dashboard/Uptime.vue'
 </script>
@@ -11,6 +12,7 @@ import Uptime from '~/components/app/dashboard/Uptime.vue'
       </AppLayoutPageTitle>
     </AppLayoutPageHeader>
     <AppLayoutPageContent class="container space-y-6">
+      <Overview2 />
       <Overview />
       <Uptime />
 
