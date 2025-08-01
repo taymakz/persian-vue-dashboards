@@ -1,0 +1,8 @@
+ignoredBuiltDependencies:
+  - unrs-resolver
+  - vue-demi
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@tailwindcss/oxide'
+  - esbuild
+  - sharp
