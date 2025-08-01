@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import InputSecondary from '~/components/ui/input/InputSecondary.vue'
 import { appDesktopStartMinWidth } from '~/constants'
 import MediaUpload from './MediaUpload.vue'
 import MediaUploadZone from './MediaUploadZone.vue'
@@ -91,18 +92,17 @@ function getFileType(filename: string): MediaFileType {
 <template>
   <!-- Define the reusable template -->
   <UseTemplate>
-    <form class="grid items-start gap-4 px-4" @submit.prevent="submit">
+    <form class="grid items-start gap-4 px-4 space-y-4" @submit.prevent="submit">
       <div class="grid gap-2">
         <Label for="caption">توضیحات رسانه</Label>
-        <Input
+        <InputSecondary
           id="caption"
           v-model="formData.caption"
-          placeholder="توضیحاتی برای رسانه وارد کنید..."
+          label="توضیحاتی برای رسانه وارد کنید..."
         />
       </div>
 
       <div class="grid gap-2">
-        <Label>انتخاب فایل</Label>
         <MediaUpload
           v-model="formData.media"
           file-type="ALL"
@@ -149,7 +149,7 @@ function getFileType(filename: string): MediaFileType {
       </MediaUploadZone>
     </DrawerTrigger>
     <DrawerContent>
-      <DrawerHeader class="text-left">
+      <DrawerHeader>
         <DrawerTitle>اضافه کردن رسانه جدید</DrawerTitle>
         <DrawerDescription>
           فایل مورد نظر را انتخاب کرده و توضیحات آن را وارد کنید.

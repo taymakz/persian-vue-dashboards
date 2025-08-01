@@ -55,7 +55,7 @@ function validateFile(newFile: File): boolean {
     return false
   }
 
-  const sizeLimit = ['jpg', 'jpeg', 'png', 'gif'].includes(extension) ? 5 * 1024 * 1024 : 50 * 1024 * 1024 // 5MB for images, 50MB for others
+  const sizeLimit = ['jpg', 'jpeg', 'png', 'gif'].includes(extension) ? 1 * 1024 * 1024 : 50 * 1024 * 1024 // 1MB for images, 50MB for others
   if (newFile.size > sizeLimit) {
     toast.error(`حجم فایل بیش از حد مجاز است. حداکثر حجم: ${sizeLimit / (1024 * 1024)}MB`)
     return false
@@ -141,13 +141,13 @@ function formatFileSize(bytes: number): string {
       @mouseover="handleEnter"
       @mouseleave="handleLeave"
     >
-      <div class="group/file relative block w-full overflow-hidden rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-muted-foreground/50">
-        <div class="flex flex-col items-center justify-center space-y-2">
+      <div class="group/file relative block w-full overflow-hidden rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-primary">
+        <div class="flex flex-col items-center justify-center space-y-4">
           <div
-            class="flex h-16 w-16 items-center justify-center rounded-lg bg-muted transition-all duration-200"
-            :class="isActive ? 'scale-110 bg-primary/10' : ''"
+            class="flex size-12 items-center justify-center rounded-lg bg-muted transition-all duration-200 text-muted-foreground"
+            :class="isActive ? 'scale-105 bg-primary text-primary-foreground' : ''"
           >
-            <Icon name="lucide:upload" class="size-8 text-muted-foreground" />
+            <span class="icon-[lucide--upload] size-6  " />
           </div>
 
           <div class="text-center">
@@ -157,9 +157,7 @@ function formatFileSize(bytes: number): string {
             <p class="text-xs text-muted-foreground mt-1">
               یا فایل را اینجا بکشید و رها کنید
             </p>
-            <p class="text-xs text-muted-foreground mt-1">
-              فرمت‌های مجاز: {{ allowedExtensions.join(', ').toUpperCase() }}
-            </p>
+
           </div>
         </div>
       </div>
@@ -168,36 +166,35 @@ function formatFileSize(bytes: number): string {
     <!-- Selected File Preview -->
     <div v-else class="space-y-3">
       <div class="flex items-center justify-between rounded-lg border bg-card p-3">
-        <div class="flex items-center space-x-3 rtl:space-x-reverse">
+        <div class="flex items-center gap-4">
           <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-            <Icon name="lucide:file" class="size-5 text-primary" />
+            <span class="icon-[lucide--file] size-5 text-primary " />
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-sm font-medium truncate">
               {{ selectedFile.name }}
             </p>
-            <p class="text-xs text-muted-foreground">
+            <p class="text-xs text-muted-foreground font-comfortaa">
               {{ formatFileSize(selectedFile.size) }}
             </p>
           </div>
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          class="flex items-center justify-center size-8 rounded-md hover:bg-accent/50"
           @click="clearFile"
         >
-          <Icon name="lucide:x" class="size-4" />
-        </Button>
+          <span class="icon-[lucide--x] size-4  " />
+        </button>
       </div>
 
       <Button
         variant="outline"
-        size="sm"
         class="w-full"
         @click="handleClick"
       >
-        <Icon name="lucide:refresh-cw" class="size-4 ml-2" />
+        <span class="icon-[lucide--refresh-cw] size-4  " />
+
         تغییر فایل
       </Button>
     </div>
