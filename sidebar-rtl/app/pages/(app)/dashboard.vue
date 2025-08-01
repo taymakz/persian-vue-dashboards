@@ -14,7 +14,7 @@ import Uptime from '~/components/app/dashboard/Uptime.vue'
       <Overview />
       <Uptime />
 
-      <div class="mb-10 grid grid-cols-3 items-center gap-4">
+      <div class="grid grid-cols-3 items-center gap-4">
         <AppDashboardRecentTransactions />
         <AppDashboardRecentComments />
       </div>
