@@ -6,7 +6,7 @@ import Uptime from '~/components/app/dashboard/Uptime.vue'
 <template>
   <div>
     <AppLayoutPageHeader>
-      <AppLayoutPageTitle class="container">
+      <AppLayoutPageTitle>
         داشبورد
       </AppLayoutPageTitle>
     </AppLayoutPageHeader>
