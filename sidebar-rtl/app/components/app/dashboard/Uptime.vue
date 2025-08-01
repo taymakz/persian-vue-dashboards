@@ -35,7 +35,7 @@ const uptimeData = Array.from({ length: 125 }, (_, i) => {
     </CardHeader>
     <CardContent class="p-6">
       <TooltipProvider>
-        <div class="flex gap-0.5 overflow-x-auto scrollbar-hide">
+        <div class="flex gap-0.5 overflow-x-auto scrollbar-hide justify-center">
           <Tooltip v-for="item in uptimeData" :key="item.day">
             <TooltipTrigger>
               <div class="w-2 h-8 rounded-xs" :class="[item.value === 1 ? 'bg-success' : 'bg-warning']" />
