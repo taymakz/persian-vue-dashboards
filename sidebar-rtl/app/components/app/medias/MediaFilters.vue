@@ -47,62 +47,57 @@ const selectedCount = computed(() => selectedTypes.value.length)
   <Popover>
     <PopoverTrigger as-child>
       <Button variant="outline" class="gap-2">
-        <Icon name="lucide:filter" class="size-4" />
+        <span class="icon-[lucide--filter] size-4" />
         فیلتر نوع رسانه
         <div v-if="selectedCount > 0" class="flex items-center justify-center w-5 h-5 bg-primary text-primary-foreground rounded-full text-xs">
           {{ selectedCount }}
         </div>
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-64" align="end">
-      <div class="space-y-3">
-        <div class="space-y-2">
-          <h4 class="font-medium text-sm">
-            نوع رسانه
-          </h4>
+    <PopoverContent class="w-64 p-0" align="end">
+      <div>
+        <div class="space-y-2 border-b pb-2 px-4 pt-4">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="font-medium text-sm">
+              نوع رسانه
+            </h4>
+            <div v-if="selectedCount > 0">
+              <div
+
+                class="flex items-center text-xs text-warning cursor-pointer  hover:text-warning/80 duration-200"
+                @click="selectedTypes = []"
+              >
+                <span class="icon-[lucide--x] size-4" />
+                پاک کردن 
+              </div>
+            </div>
+          </div>
           <p class="text-xs text-muted-foreground">
             نوع رسانه‌هایی که می‌خواهید مشاهده کنید را انتخاب کنید
           </p>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 p-2">
           <div
             v-for="type in mediaTypes"
             :key="type"
-            class="flex items-center space-x-2 rtl:space-x-reverse"
+            class="flex items-center "
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              class="w-full justify-start gap-2"
-              :class="isSelected(type) ? 'bg-primary/10 text-primary' : ''"
+            <div
+              class="w-full flex items-center py-1.5 px-4 text-sm
+               rounded-md gap-2 cursor-pointer duration-200"
+              :class="isSelected(type) ? 'bg-primary/10 text-primary' : 'hover:bg-accent/50'"
               @click="toggleType(type)"
             >
               <div
                 class="w-4 h-4 rounded border-2 flex items-center justify-center"
                 :class="isSelected(type) ? 'bg-primary border-primary' : 'border-muted-foreground'"
               >
-                <Icon
-                  v-if="isSelected(type)"
-                  name="lucide:check"
-                  class="size-3 text-primary-foreground"
-                />
+                <span class="icon-[lucide--check] size-3 text-primary-foreground" />
               </div>
               {{ typeLabels[type] }}
-            </Button>
+            </div>
           </div>
-        </div>
-
-        <div v-if="selectedCount > 0" class="pt-2 border-t">
-          <Button
-            variant="ghost"
-            size="sm"
-            class="w-full text-muted-foreground hover:text-foreground"
-            @click="selectedTypes = []"
-          >
-            <Icon name="lucide:x" class="size-4 ml-2" />
-            پاک کردن همه
-          </Button>
         </div>
       </div>
     </PopoverContent>
