@@ -14,14 +14,19 @@ const links: LinkType[] = [
     icon: 'icon-[mage--dashboard-chart]',
     label: 'داشبورد',
   },
-
+  {
+    to: '/medias',
+    icon: 'icon-[solar--cloud-storage-outline]',
+    label: 'رسانه ها',
+  },
   {
     icon: 'icon-[carbon--carbon-for-ibm-product]',
     label: 'مدیریت محصولات',
     children: [
       { to: '/products', label: 'لیست' },
-      { to: '/products/categories', label: 'دسته‌بندی‌ها' },
-      { to: '/products/brands', label: 'برندها' },
+      { to: '/products/create', label: 'محصول جدید' },
+      { to: '/products/', label: 'دسته‌بندی‌ها' },
+      { to: '/products/', label: 'برندها' },
     ],
   },
   {
