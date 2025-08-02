@@ -25,6 +25,8 @@ async function submit(_values: any) {
 
   loading.value = false
 }
+
+const editorValue = ref('')
 </script>
 
 <template>
@@ -72,7 +74,8 @@ async function submit(_values: any) {
       </div>
       <div class="flex justify-center max-w-7xl mx-auto">
         <Card class="p-6 w-full">
-          <AppFieldsTiptapEditor />
+          <AppFieldsTiptapEditor v-model="editorValue"/>
+ 
         </Card>
       </div>
     </AppLayoutPageContent>

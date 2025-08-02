@@ -304,7 +304,10 @@ const selectionCountText = computed(() => {
   <!-- Desktop Dialog -->
   <Dialog v-if="isDesktop" v-model:open="isOpen">
     <DialogTrigger as-child>
-      <Button variant="outline" class=" w-full">
+      <template v-if="$slots.default">
+        <slot/>
+      </template>
+      <Button v-else variant="outline" class=" w-full">
         <span :class="triggerIcon" class="size-4" />
         {{ triggerText }}
         <Badge v-if="modelValue.length > 0" variant="secondary" class="ml-2">
@@ -346,7 +349,10 @@ const selectionCountText = computed(() => {
   <!-- Mobile Drawer -->
   <Drawer v-else v-model:open="isOpen">
     <DrawerTrigger as-child>
-      <Button variant="outline" class=" w-full">
+        <template v-if="$slots.default">
+        <slot/>
+      </template>
+      <Button v-else variant="outline" class=" w-full">
         <span :class="triggerIcon" class="size-4" />
         {{ triggerText }}
         <Badge v-if="modelValue.length > 0" variant="secondary" class="ml-2">

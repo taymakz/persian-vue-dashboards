@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { MediaType } from '~/types/media'
 import { EditorContent as TiptapEditorContent, useEditor } from '@tiptap/vue-3'
-import { onBeforeUnmount, ref, unref } from 'vue'
-import { Button } from '@/components/ui/button'
+import { onBeforeUnmount, onMounted, ref, unref, watch } from 'vue'
+import MediaSelect from '~/components/app/medias/MediaSelect.vue'
+import { Button } from '~/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,14 +11,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '~/components/ui/dropdown-menu'
+import { Input } from '~/components/ui/input'
+import InputSecondary from '~/components/ui/input/InputSecondary.vue'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/ui/popover'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import MediaSelect from '~/components/app/medias/MediaSelect.vue'
+} from '~/components/ui/tooltip'
 import {
   TiptapImage,
   TiptapLink,
@@ -33,6 +40,10 @@ const value = defineModel<string>({ required: true, default: '' })
 
 const isFullscreen = ref(false)
 const selectedMedias = ref<MediaType[]>([])
+const headingsOpen = ref(false)
+const listsOpen = ref(false)
+const linkPopoverOpen = ref(false)
+const linkUrl = ref('')
 
 const editor = useEditor({
   content: value.value,
@@ -61,8 +72,90 @@ const editor = useEditor({
       class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:prose-invert max-w-none focus:outline-none',
     },
   },
+  onUpdate: ({ editor }) => {
+    value.value = editor.getHTML()
+  },
 })
 
+function selectList(type: 'bullet' | 'ordered' | 'task') {
+  if (!editor.value)
+    return
+  if (type === 'bullet') {
+    editor.value.chain().focus().toggleBulletList().run()
+  }
+  else if (type === 'ordered') {
+    editor.value.chain().focus().toggleOrderedList().run()
+  }
+  else if (type === 'task') {
+    editor.value.chain().focus().toggleTaskList().run()
+  }
+  listsOpen.value = false
+}
+
+function selectHeading(type: 'paragraph' | number) {
+  if (!editor.value)
+    return
+  if (type === 'paragraph') {
+    editor.value.chain().focus().setParagraph().run()
+  }
+  else {
+    editor.value.chain().focus().toggleHeading({ level: type as any }).run()
+  }
+  headingsOpen.value = false
+}
+
+// Link functionality
+watch(linkPopoverOpen, (isOpen) => {
+  if (isOpen && editor.value) {
+    // Get current link if selection is within a link
+    const { href } = editor.value.getAttributes('link')
+    linkUrl.value = href || ''
+  }
+})
+
+function setLink() {
+  if (!editor.value || !linkUrl.value.trim())
+    return
+
+  // Add protocol if missing
+  let url = linkUrl.value.trim()
+  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('mailto:')) {
+    url = `https://${url}`
+  }
+
+  // Check if there's a selection or if we're in a link
+  const { from, to } = editor.value.state.selection
+  const hasSelection = from !== to
+
+  if (hasSelection || editor.value.isActive('link')) {
+    // Apply link to selection or update existing link
+    editor.value
+      .chain()
+      .focus()
+      .setLink({ href: url })
+      .run()
+  }
+  else {
+    // No selection, insert link text
+    editor.value
+      .chain()
+      .focus()
+      .insertContent(`<a href="${url}">${linkUrl.value}</a>`)
+      .run()
+  }
+
+  linkPopoverOpen.value = false
+  linkUrl.value = ''
+}
+
+function removeLink() {
+  if (!editor.value)
+    return
+
+  editor.value.chain().focus().unsetLink().run()
+  linkPopoverOpen.value = false
+  linkUrl.value = ''
+}
 // Handle media selection
 function handleMediaSelection(medias: MediaType[]) {
   console.warn('Media selection received:', medias)
@@ -123,16 +216,19 @@ function handleMediaSelection(medias: MediaType[]) {
 function toggleFullscreen() {
   isFullscreen.value = !isFullscreen.value
   if (isFullscreen.value) {
+    document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
   }
   else {
-    document.body.style.overflow = 'auto'
+    document.documentElement.style.overflow = ''
+    document.body.style.overflow = ''
   }
 }
 
 function closeFullscreen() {
   isFullscreen.value = false
-  document.body.style.overflow = 'auto'
+  document.documentElement.style.overflow = ''
+  document.body.style.overflow = ''
 }
 
 // Handle escape key for fullscreen
@@ -155,7 +251,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
-  document.body.style.overflow = 'auto'
+  document.documentElement.style.overflow = ''
+  document.body.style.overflow = ''
   unref(editor)?.destroy()
 })
 </script>
@@ -166,11 +263,11 @@ onBeforeUnmount(() => {
     :class="{ 'fixed inset-0 z-50 !rounded-none !border-0 shadow-2xl': isFullscreen }"
   >
     <!-- Toolbar -->
-    <div class="border-b bg-muted/30 p-3">
+    <div class="border-b bg-accent/20 p-3 font-sans">
       <TooltipProvider>
-        <div class="flex flex-wrap items-center gap-1">
+        <div class="flex flex-wrap items-center">
           <!-- Text Formatting -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+          <div class="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
@@ -241,38 +338,45 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Headings Dropdown -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
-            <DropdownMenu>
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5 ">
+            <DropdownMenu v-model:open="headingsOpen">
               <DropdownMenuTrigger as-child>
-                <Button size="icon" class="size-8" variant="ghost">
-                  <span class="icon-[lucide--heading] size-4" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <Button size="icon" class="size-8" variant="ghost" @click="headingsOpen = !headingsOpen">
+                      <span class="icon-[lucide--heading] size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Headings</p>
+                  </TooltipContent>
+                </Tooltip>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Headings</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem @click="editor?.chain().focus().setParagraph().run()">
-                  <span :class="editor?.isActive('paragraph') ? 'font-bold text-primary' : ''">
+                <DropdownMenuItem @click="selectHeading('paragraph')">
+                  <span :class="editor?.isActive('paragraph') ? ' text-primary' : ''">
                     Paragraph
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()">
-                  <span :class="editor?.isActive('heading', { level: 1 }) ? 'font-bold text-primary' : ''">
+                <DropdownMenuItem @click="selectHeading(1)">
+                  <span :class="editor?.isActive('heading', { level: 1 }) ? ' text-primary' : ''">
                     Heading 1
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()">
-                  <span :class="editor?.isActive('heading', { level: 2 }) ? 'font-bold text-primary' : ''">
+                <DropdownMenuItem @click="selectHeading(2)">
+                  <span :class="editor?.isActive('heading', { level: 2 }) ? ' text-primary' : ''">
                     Heading 2
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()">
-                  <span :class="editor?.isActive('heading', { level: 3 }) ? 'font-bold text-primary' : ''">
+                <DropdownMenuItem @click="selectHeading(3)">
+                  <span :class="editor?.isActive('heading', { level: 3 }) ? ' text-primary' : ''">
                     Heading 3
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 4 }).run()">
-                  <span :class="editor?.isActive('heading', { level: 4 }) ? 'font-bold text-primary' : ''">
+                <DropdownMenuItem @click="selectHeading(4)">
+                  <span :class="editor?.isActive('heading', { level: 4 }) ? ' text-primary' : ''">
                     Heading 4
                   </span>
                 </DropdownMenuItem>
@@ -281,27 +385,34 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Lists Dropdown -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
-            <DropdownMenu>
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5">
+            <DropdownMenu v-model:open="listsOpen">
               <DropdownMenuTrigger as-child>
-                <Button size="icon" class="size-8" variant="ghost">
-                  <span class="icon-[lucide--list] size-4" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <Button size="icon" class="size-8" variant="ghost" @click="listsOpen = !listsOpen">
+                      <span class="icon-[lucide--list] size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Lists</p>
+                  </TooltipContent>
+                </Tooltip>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Lists</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem @click="editor?.chain().focus().toggleBulletList().run()">
+                <DropdownMenuItem @click="selectList('bullet')">
                   <span :class="editor?.isActive('bulletList') ? 'font-bold text-primary' : ''">
                     Bullet List
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem @click="editor?.chain().focus().toggleOrderedList().run()">
+                <DropdownMenuItem @click="selectList('ordered')">
                   <span :class="editor?.isActive('orderedList') ? 'font-bold text-primary' : ''">
                     Numbered List
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem @click="editor?.chain().focus().toggleTaskList().run()">
+                <DropdownMenuItem @click="selectList('task')">
                   <span :class="editor?.isActive('taskList') ? 'font-bold text-primary' : ''">
                     Task List
                   </span>
@@ -311,7 +422,7 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Blocks -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5">
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
@@ -362,22 +473,21 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Alignment -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5">
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
                   size="icon" class="size-8"
-                  :variant="editor?.isActive({ textAlign: 'left' }) ? 'default' : 'ghost'"
-                  @click="editor?.chain().focus().setTextAlign('left').run()"
+                  :variant="editor?.isActive({ textAlign: 'right' }) ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().setTextAlign('right').run()"
                 >
-                  <span class="icon-[lucide--align-left] size-4" />
+                  <span class="icon-[lucide--align-right] size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Align Left</p>
+                <p>Align Right</p>
               </TooltipContent>
             </Tooltip>
-
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
@@ -392,19 +502,18 @@ onBeforeUnmount(() => {
                 <p>Align Center</p>
               </TooltipContent>
             </Tooltip>
-
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
                   size="icon" class="size-8"
-                  :variant="editor?.isActive({ textAlign: 'right' }) ? 'default' : 'ghost'"
-                  @click="editor?.chain().focus().setTextAlign('right').run()"
+                  :variant="editor?.isActive({ textAlign: 'left' }) ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().setTextAlign('left').run()"
                 >
-                  <span class="icon-[lucide--align-right] size-4" />
+                  <span class="icon-[lucide--align-left] size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Align Right</p>
+                <p>Align Left</p>
               </TooltipContent>
             </Tooltip>
 
@@ -425,7 +534,7 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Superscript/Subscript -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5">
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
@@ -456,39 +565,81 @@ onBeforeUnmount(() => {
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon" class="size-8"
-                  :variant="editor?.isActive('link') ? 'default' : 'ghost'"
-                  @click="editor?.chain().focus().toggleLink({ href: '' }).run()"
-                >
-                  <span class="icon-[lucide--link] size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Link</p>
-              </TooltipContent>
-            </Tooltip>
+            <Popover v-model:open="linkPopoverOpen">
+              <PopoverTrigger as-child>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <Button
+                      size="icon"
+                      class="size-8" :variant="editor?.isActive('link') ? 'default' : 'ghost'"
+                      @click="linkPopoverOpen = !linkPopoverOpen"
+                    >
+                      <span class="icon-[lucide--link] size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Link</p>
+                  </TooltipContent>
+                </Tooltip>
+              </PopoverTrigger>
+              <PopoverContent class="w-80">
+                <div class="space-y-3">
+                  <div class="space-y-2">
+                    <h4 class="font-medium text-sm">
+                      اضافه کردن لینک
+                    </h4>
+                    <InputSecondary
+                      v-model="linkUrl"
+                      label="آدرس لینک"
+                      placeholder="https://example.com"
+                      class="w-full"
+                      dir="ltr"
+                      @keydown.enter="setLink"
+                    />
+                  </div>
+                  <div class="flex justify-between">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      :disabled="!editor?.isActive('link')"
+                      @click="removeLink"
+                    >
+                      حذف
+                    </Button>
+                    <Button
+                      size="sm"
+                      :disabled="!linkUrl.trim()"
+                      @click="setLink"
+                    >
+                      ثبت
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <!-- Media -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5">
             <MediaSelect
               v-model="selectedMedias"
               :multiple="false"
               :immediate="true"
               :types="['PHOTO', 'VIDEO']"
-              trigger-text="رسانه"
-              trigger-icon="icon-[lucide--image]"
-              title="انتخاب تصویر یا ویدیو"
-              description="تصویر یا ویدیو مورد نظر خود را انتخاب کنید"
               @update:model-value="handleMediaSelection"
-            />
+            >
+              <button
+                class="flex items-center gap-2 font-vazir text-xs cursor-pointer py-1 px-2.5 rounded-md
+               hover:bg-secondary border border-transparent hover:border-border"
+              >
+                <span class="icon-[material-symbols-light--add-photo-alternate-outline] size-5" />
+                رسانه
+              </button>
+            </MediaSelect>
           </div>
 
           <!-- Undo/Redo -->
-          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+          <div class="flex items-center gap-1 mr-1.5 border-r border-border pr-1.5">
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
@@ -498,14 +649,13 @@ onBeforeUnmount(() => {
 
                   @click="editor?.chain().focus().undo().run()"
                 >
-                  <span class="icon-[lucide--undo] size-4" />
+                  <span class="icon-[solar--undo-right-round-outline] size-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Undo (Ctrl+Z)</p>
               </TooltipContent>
             </Tooltip>
-
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
@@ -515,7 +665,7 @@ onBeforeUnmount(() => {
 
                   @click="editor?.chain().focus().redo().run()"
                 >
-                  <span class="icon-[lucide--redo] size-4" />
+                  <span class="icon-[solar--undo-left-round-outline] size-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -548,202 +698,18 @@ onBeforeUnmount(() => {
 
     <!-- Editor Content -->
     <div
-      class="editor-content-wrapper"
+      class="editor-content-wrapper font-vazir relative z-50 "
       :class="{ 'flex-1 flex flex-col': isFullscreen }"
     >
       <TiptapEditorContent
         :editor="editor"
-        class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:prose-invert max-w-none focus:outline-none" :class="[
+        class="prose dark:prose-invert max-w-none [&>div]:sm:!max-w-none [&>div]:min-h-[400px] [&>div]:p-6 focus:outline-none prose-img:mx-auto prose-a:text-primary" :class="[
           isFullscreen
-            ? 'flex-1 p-8 overflow-y-auto'
-            : 'min-h-[200px] p-6',
+            ? 'flex-1  overflow-y-auto z-50'
+            : 'min-h-[400px] ',
         ]"
+
       />
     </div>
-
-    <!-- Fullscreen Overlay -->
-    <div
-      v-if="isFullscreen"
-      class="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
-      @click="closeFullscreen"
-    />
   </div>
 </template>
-
-<style scoped>
-/* Custom editor styles */
-:deep(.ProseMirror) {
-  outline: none;
-  min-height: 200px;
-  padding: 1rem;
-}
-
-:deep(.ProseMirror p.is-editor-empty:first-child::before) {
-  content: attr(data-placeholder);
-  color: hsl(var(--muted-foreground));
-  pointer-events: none;
-  float: left;
-  height: 0;
-}
-
-:deep(.ProseMirror img) {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.5rem;
-  border: 1px solid hsl(var(--border));
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-:deep(.ProseMirror img:hover) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.ProseMirror video) {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.5rem;
-  border: 1px solid hsl(var(--border));
-  margin: 1rem 0;
-}
-
-:deep(.ProseMirror blockquote) {
-  border-left: 4px solid hsl(var(--border));
-  padding-left: 1rem;
-  font-style: italic;
-  margin: 1rem 0;
-}
-
-:deep(.ProseMirror pre) {
-  background-color: hsl(var(--muted));
-  border-radius: 0.5rem;
-  padding: 1rem;
-  overflow-x: auto;
-  margin: 1rem 0;
-}
-
-:deep(.ProseMirror code) {
-  background-color: hsl(var(--muted));
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-:deep(.ProseMirror hr) {
-  border: none;
-  border-top: 1px solid hsl(var(--border));
-  margin: 1rem 0;
-}
-
-:deep(.ProseMirror ul, .ProseMirror ol) {
-  margin-left: 1.5rem;
-  margin: 1rem 0;
-}
-
-:deep(.ProseMirror h1) {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  line-height: 1.2;
-}
-
-:deep(.ProseMirror h1:first-child) {
-  margin-top: 0;
-}
-
-:deep(.ProseMirror h2) {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-top: 1.25rem;
-  margin-bottom: 0.75rem;
-  line-height: 1.3;
-}
-
-:deep(.ProseMirror h2:first-child) {
-  margin-top: 0;
-}
-
-:deep(.ProseMirror h3) {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-}
-
-:deep(.ProseMirror h3:first-child) {
-  margin-top: 0;
-}
-
-:deep(.ProseMirror h4) {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-top: 0.75rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.5;
-}
-
-:deep(.ProseMirror h4:first-child) {
-  margin-top: 0;
-}
-
-:deep(.ProseMirror h5) {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-top: 0.75rem;
-  margin-bottom: 0.25rem;
-  line-height: 1.5;
-}
-
-:deep(.ProseMirror h5:first-child) {
-  margin-top: 0;
-}
-
-:deep(.ProseMirror h6) {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-  margin-bottom: 0.25rem;
-  line-height: 1.5;
-}
-
-:deep(.ProseMirror h6:first-child) {
-  margin-top: 0;
-}
-
-/* Focus and selection styles */
-:deep(.ProseMirror-focused) {
-  outline: none;
-}
-
-:deep(.ProseMirror ::selection) {
-  background-color: hsl(var(--primary) / 0.3);
-}
-
-/* List styles */
-:deep(.ProseMirror ul) {
-  list-style-type: disc;
-}
-
-:deep(.ProseMirror ol) {
-  list-style-type: decimal;
-}
-
-:deep(.ProseMirror li) {
-  margin: 0.25rem 0;
-}
-
-/* Paragraph spacing */
-:deep(.ProseMirror p) {
-  margin: 0.5rem 0;
-}
-
-:deep(.ProseMirror p:first-child) {
-  margin-top: 0;
-}
-
-:deep(.ProseMirror p:last-child) {
-  margin-bottom: 0;
-}
-</style>
