@@ -41,7 +41,7 @@ async function submit(_values: any) {
     </AppLayoutPageHeader>
 
     <AppLayoutPageContent>
-      <div class="flex justify-center max-w-xl mx-auto">
+      <div class="flex justify-center max-w-xl mx-auto mb-4">
         <Card class="w-full p-6">
           <Form v-slot="{ meta }" @submit="submit">
             <div class="space-y-4 mb-6">
@@ -68,6 +68,11 @@ async function submit(_values: any) {
               ثبت
             </Button>
           </Form>
+        </Card>
+      </div>
+      <div class="flex justify-center max-w-7xl mx-auto">
+        <Card class="p-6 w-full">
+          <AppFieldsTiptapEditor />
         </Card>
       </div>
     </AppLayoutPageContent>
