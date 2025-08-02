@@ -293,7 +293,9 @@ function selectPreset(value: any) {
     return
 
   const days = Number(value)
+
   const dayjs = useDayjs()
+
   dayjs.extend(jalaliPlugin)
 
   const targetDate = dayjs().add(days, 'day')
@@ -310,7 +312,39 @@ function selectPreset(value: any) {
   currentYear.value = Number.parseInt(targetDate.calendar('jalali').format('YYYY'))
   currentMonth.value = Number.parseInt(targetDate.calendar('jalali').format('MM'))
 }
+const hourInterval = ref<ReturnType<typeof setInterval> | null>(null)
+const minuteInterval = ref<ReturnType<typeof setInterval> | null>(null)
 
+function stopRapidInterval(type: 'hour' | 'minute') {
+  if (type === 'hour' && hourInterval.value) {
+    clearInterval(hourInterval.value)
+    hourInterval.value = null
+  }
+  if (type === 'minute' && minuteInterval.value) {
+    clearInterval(minuteInterval.value)
+    minuteInterval.value = null
+  }
+}
+
+function startRapidIncrement(type: 'hour' | 'minute') {
+  stopRapidInterval(type)
+  if (type === 'hour') {
+    hourInterval.value = setInterval(() => incrementHour(), 80)
+  }
+  else {
+    minuteInterval.value = setInterval(() => incrementMinute(), 80)
+  }
+}
+
+function startRapidDecrement(type: 'hour' | 'minute') {
+  stopRapidInterval(type)
+  if (type === 'hour') {
+    hourInterval.value = setInterval(() => decrementHour(), 80)
+  }
+  else {
+    minuteInterval.value = setInterval(() => decrementMinute(), 80)
+  }
+}
 // Watch for external changes to modelValue
 watch(modelValue, (newValue) => {
   if (newValue !== selectedDate.value) {
@@ -488,6 +522,9 @@ watch(modelValue, (newValue) => {
                       variant="outline"
                       class="size-6 "
                       @click="incrementMinute"
+                      @mousedown="startRapidIncrement('minute')"
+                      @mouseup="stopRapidInterval('minute')"
+                      @mouseleave="stopRapidInterval('minute')"
                     >
                       <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
                     </Button>
@@ -505,6 +542,9 @@ watch(modelValue, (newValue) => {
                       variant="outline"
                       class="size-6"
                       @click="decrementMinute"
+                      @mousedown="startRapidDecrement('minute')"
+                      @mouseup="stopRapidInterval('minute')"
+                      @mouseleave="stopRapidInterval('minute')"
                     >
                       <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
                     </Button>
@@ -522,6 +562,9 @@ watch(modelValue, (newValue) => {
                       variant="outline"
                       class="size-6"
                       @click="incrementHour"
+                      @mousedown="startRapidIncrement('hour')"
+                      @mouseup="stopRapidInterval('hour')"
+                      @mouseleave="stopRapidInterval('hour')"
                     >
                       <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
                     </Button>
@@ -539,6 +582,9 @@ watch(modelValue, (newValue) => {
                       variant="outline"
                       class="size-6"
                       @click="decrementHour"
+                      @mousedown="startRapidDecrement('hour')"
+                      @mouseup="stopRapidInterval('hour')"
+                      @mouseleave="stopRapidInterval('hour')"
                     >
                       <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
                     </Button>
