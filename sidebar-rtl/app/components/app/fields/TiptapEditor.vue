@@ -183,23 +183,6 @@ function handleMediaSelection(medias: MediaType[]) {
         })
         .run()
     }
-    else if (media.file_type === 'VIDEO' && media.media_url) {
-      console.warn('Inserting video:', media.media_url)
-      // Insert video as HTML
-      const videoHtml = `
-        <video controls class="max-w-full h-auto rounded-lg border shadow-sm my-4">
-          <source src="${media.media_url}" type="video/mp4">
-          <source src="${media.media_url}" type="video/webm">
-          <source src="${media.media_url}" type="video/avi">
-          Your browser does not support the video tag.
-        </video>
-      `
-      editor.value
-        .chain()
-        .focus()
-        .insertContent(videoHtml)
-        .run()
-    }
     else {
       console.warn('Media type not supported or missing URL:', media.file_type, media.media_url)
     }
@@ -625,7 +608,7 @@ onBeforeUnmount(() => {
               v-model="selectedMedias"
               :multiple="false"
               :immediate="true"
-              :types="['PHOTO', 'VIDEO']"
+              :types="['PHOTO']"
               @update:model-value="handleMediaSelection"
             >
               <button
@@ -633,7 +616,7 @@ onBeforeUnmount(() => {
                hover:bg-secondary border border-transparent hover:border-border"
               >
                 <span class="icon-[material-symbols-light--add-photo-alternate-outline] size-5" />
-                رسانه
+                عکس
               </button>
             </MediaSelect>
           </div>
@@ -708,7 +691,6 @@ onBeforeUnmount(() => {
             ? 'flex-1  overflow-y-auto z-50'
             : 'min-h-[400px] ',
         ]"
-
       />
     </div>
   </div>
