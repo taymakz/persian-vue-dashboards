@@ -93,17 +93,6 @@ const editorValue = ref('')
                 />
               </div>
 
-              <!-- Jalali Date Picker without Today Button -->
-              <div class="space-y-2">
-                <label class="text-sm font-medium">تاریخ بدون دکمه امروز</label>
-                <DatepickerJalali
-                  v-model="selectedDateNoToday"
-                  placeholder="انتخاب تاریخ"
-                  :show-today-button="false"
-                  class="w-full"
-                />
-              </div>
-
               <!-- Jalali Date Picker with Presets -->
               <div class="space-y-2">
                 <label class="text-sm font-medium">تاریخ با انتخاب سریع</label>
