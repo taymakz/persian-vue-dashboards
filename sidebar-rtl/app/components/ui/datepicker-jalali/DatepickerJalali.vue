@@ -148,6 +148,11 @@ const calendarDays = computed(() => {
 
     const days = []
 
+    // Get today's Jalali date string
+    const dayjs = useDayjs()
+    dayjs.extend(jalaliPlugin)
+    const todayJalali = dayjs().calendar('jalali').format('YYYY/MM/DD')
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < adjustedFirstDay; i++) {
       days.push({ day: '', disabled: true, isCurrentMonth: false })
@@ -157,6 +162,7 @@ const calendarDays = computed(() => {
     for (let day = 1; day <= daysInMonth; day++) {
       const dateString = `${currentYear.value}/${currentMonth.value.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`
       const isSelected = selectedDate.value === dateString
+      const isToday = dateString === todayJalali
 
       days.push({
         day: day.toString(),
@@ -164,6 +170,7 @@ const calendarDays = computed(() => {
         isCurrentMonth: true,
         isSelected,
         dateString,
+        isToday,
       })
     }
 
@@ -499,6 +506,7 @@ watch(modelValue, (newValue) => {
                   'text-muted-foreground cursor-not-allowed': day.disabled || !day.isCurrentMonth,
                   'bg-primary text-primary-foreground': day.isSelected,
                   'hover:bg-primary/90': day.isSelected,
+                  'text-primary hover:text-primary': day.isToday && !day.isSelected,
                 },
               )"
               @click="selectDate(day)"
@@ -530,7 +538,7 @@ watch(modelValue, (newValue) => {
                     type="number"
                     min="0"
                     max="59"
-                    class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
+                    class="w-12 h-8 text-center bg-input border rounded text-sm  focus:ring-2 focus:ring-primary focus:outline-none"
                     @input="validateAndUpdateMinute"
                   >
                   <Button
@@ -570,7 +578,7 @@ watch(modelValue, (newValue) => {
                     type="number"
                     min="0"
                     max="23"
-                    class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
+                    class="w-12 h-8 text-center bg-input border rounded text-sm  focus:ring-2 focus:ring-primary focus:outline-none"
                     @input="validateAndUpdateHour"
                   >
                   <Button
