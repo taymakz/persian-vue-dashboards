@@ -530,6 +530,8 @@ watch(modelValue, (newValue) => {
                     @mousedown="startRapidIncrement('minute')"
                     @mouseup="stopRapidInterval('minute')"
                     @mouseleave="stopRapidInterval('minute')"
+                    @touchstart="startRapidIncrement('minute')"
+                    @touchend="stopRapidInterval('minute')"
                   >
                     <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
                   </Button>
@@ -538,6 +540,7 @@ watch(modelValue, (newValue) => {
                     type="number"
                     min="0"
                     max="59"
+                    dir="ltr"
                     class="w-12 h-8 text-center bg-input border rounded text-sm  focus:ring-2 focus:ring-primary focus:outline-none"
                     @input="validateAndUpdateMinute"
                   >
@@ -550,6 +553,8 @@ watch(modelValue, (newValue) => {
                     @mousedown="startRapidDecrement('minute')"
                     @mouseup="stopRapidInterval('minute')"
                     @mouseleave="stopRapidInterval('minute')"
+                    @touchstart="startRapidDecrement('minute')"
+                    @touchend="stopRapidInterval('minute')"
                   >
                     <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
                   </Button>
@@ -570,6 +575,8 @@ watch(modelValue, (newValue) => {
                     @mousedown="startRapidIncrement('hour')"
                     @mouseup="stopRapidInterval('hour')"
                     @mouseleave="stopRapidInterval('hour')"
+                    @touchstart="startRapidIncrement('hour')"
+                    @touchend="stopRapidInterval('hour')"
                   >
                     <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
                   </Button>
@@ -578,6 +585,7 @@ watch(modelValue, (newValue) => {
                     type="number"
                     min="0"
                     max="23"
+                    dir="ltr"
                     class="w-12 h-8 text-center bg-input border rounded text-sm  focus:ring-2 focus:ring-primary focus:outline-none"
                     @input="validateAndUpdateHour"
                   >
@@ -590,6 +598,8 @@ watch(modelValue, (newValue) => {
                     @mousedown="startRapidDecrement('hour')"
                     @mouseup="stopRapidInterval('hour')"
                     @mouseleave="stopRapidInterval('hour')"
+                    @touchstart="startRapidDecrement('hour')"
+                    @touchend="stopRapidInterval('hour')"
                   >
                     <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
                   </Button>
