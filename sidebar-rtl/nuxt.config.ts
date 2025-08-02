@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     '@pinia/nuxt',
     'shadcn-nuxt',
+    'nuxt-tiptap-editor',
   ],
   ssr: false,
   devtools: { enabled: false },

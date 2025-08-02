@@ -26,7 +26,7 @@ function getRandomUrl(type: MediaFileType): string {
   switch (type) {
     case 'PHOTO': return `https://picsum.photos/800/600?random=${getRandomInt(1, 100)}`
     case 'DOCUMENT': return ''
-    case 'VIDEO': return ''
+    case 'VIDEO': return `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`
     case 'ANIMATION': return `https://picsum.photos/400/300?random=${getRandomInt(1, 100)}`
     default: return ''
   }
