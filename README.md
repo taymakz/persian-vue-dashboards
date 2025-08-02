@@ -17,9 +17,9 @@ A modern collection of Persian/Farsi admin panels and dashboards built with Vue.
 
 - **[Nuxt 4](https://nuxt.com/)** - The Intuitive Vue Framework
 - **[Vue 3](https://vuejs.org/)** - Progressive JavaScript Framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - Beautifully designed components
+- **[shadcn/ui](https://www.shadcn-vue.com/)** - Beautifully designed components
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[Motion-v](https://motion-v.netlify.app/)** - Vue motion animations
+- **[Motion-v](https://motion.dev/)** - Vue motion animations
 - **[Iconify](https://icones.js.org/)** - All Icones
 - **[Pinia](https://pinia.vuejs.org/)** - Vue Store
 - **[VeeValidate](https://vee-validate.logaretm.com/)** - Form validation
@@ -29,6 +29,11 @@ A modern collection of Persian/Farsi admin panels and dashboards built with Vue.
 
 ### Sidebar RTL
 - Sidebar on Right
+
+![Sidebar RTL Dashboard Preview](https://github.com/taymakz/vue-dashboards/assets/sidebar-rtl-dashboard.png)
+
+[🔗 Live Preview](https://vue-dashboards-sidebar-rtl.netlify.app/)
+
 ### Vercel RTL (Soon)
 - Header Navigation
 ### Comming soon ...
@@ -67,7 +72,7 @@ This project is free to use and open source. You can use it for both personal an
 
 ## 🙏 Acknowledgments
 
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
+- [shadcn/ui](https://www.shadcn-vue.com/) for the beautiful component library
 utility-first CSS framework
 - [Vazir Font](https://github.com/rastikerdar/vazir-font) for the Persian font family
 
