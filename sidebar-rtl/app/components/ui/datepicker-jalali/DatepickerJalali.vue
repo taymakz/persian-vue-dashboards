@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createReusableTemplate, useMediaQuery } from '@vueuse/core'
 import jalaliPlugin from '@zoomit/dayjs-jalali-plugin'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-expect-error
@@ -6,9 +7,17 @@ import jalaali from 'jalaali-js'
 import { CalendarIcon, ChevronLeft, ChevronRight, Clock } from 'lucide-vue-next'
 import { computed, nextTick, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/utils/cn'
+import { appDesktopStartMinWidth } from '~/constants'
 
 interface Props {
   placeholder?: string
@@ -26,6 +35,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const modelValue = defineModel<string>()
+
+// Reusable template for calendar content
+const [UseTemplate, CalendarContent] = createReusableTemplate()
+const isDesktop = useMediaQuery(appDesktopStartMinWidth)
 
 const isOpen = ref(false)
 const selectedDate = ref<string>(modelValue.value || '')
@@ -369,7 +382,223 @@ watch(modelValue, (newValue) => {
 </script>
 
 <template>
-  <Popover v-model:open="isOpen">
+  <UseTemplate>
+    <div class="flex flex-col gap-2 p-2 max-w-screen-lg mx-auto" dir="rtl">
+      <!-- Presets -->
+      <div v-if="showPresets" class="border-b pb-2">
+        <Select @update:model-value="selectPreset">
+          <SelectTrigger class="w-full">
+            <SelectValue placeholder="انتخاب سریع" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem
+              v-for="preset in presetItems"
+              :key="preset.value"
+              :value="preset.value.toString()"
+            >
+              {{ preset.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <!-- Calendar Content -->
+      <div class="p-1">
+        <!-- Year Picker View -->
+        <div v-if="showYearPicker" class="space-y-4">
+          <div class="space-y-3 border-b pb-2">
+            <div class="text-sm font-medium text-center">
+              انتخاب سال
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              class="w-full"
+              @click="showYearPicker = false"
+            >
+              بازگشت
+            </Button>
+          </div>
+
+          <div
+            ref="yearScrollContainer"
+            class="max-h-64 w-full lg:w-64  overflow-y-auto  space-y-1 scrollbar-thin"
+          >
+            <button
+              v-for="year in yearRange"
+              :key="year"
+              :data-year="year"
+              type="button"
+              :class="cn(
+                'w-full p-2 text-sm rounded-md transition-colors text-center',
+                'hover:bg-accent hover:text-accent-foreground',
+                {
+                  'bg-primary text-primary-foreground': year === currentYear,
+                  'font-medium': year === getCurrentPersianYear(),
+                },
+              )"
+              @click="selectYear(year)"
+            >
+              {{ year }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div v-else>
+          <!-- Header with navigation -->
+          <div class="flex items-center justify-between mb-4">
+            <button
+              class="p-1 hover:bg-accent rounded-md transition-colors"
+              type="button"
+              @click="goToPreviousMonth"
+            >
+              <ChevronRight class="size-4" />
+            </button>
+
+            <button
+              class="text-sm font-medium hover:bg-accent/50 rounded-md px-2 py-1 transition-colors"
+              type="button"
+              @click="toggleYearPicker"
+            >
+              {{ currentMonthName }} {{ currentYear }}
+            </button>
+
+            <button
+              class="p-1 hover:bg-accent rounded-md transition-colors"
+              type="button"
+              @click="goToNextMonth"
+            >
+              <ChevronLeft class="size-4" />
+            </button>
+          </div>
+
+          <!-- Weekday headers -->
+          <div class="grid grid-cols-7 gap-1 mb-2">
+            <div
+              v-for="weekDay in persianWeekDays"
+              :key="weekDay"
+              class="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground select-none"
+            >
+              {{ weekDay }}
+            </div>
+          </div>
+
+          <!-- Calendar grid -->
+          <div class="grid grid-cols-7 gap-1">
+            <button
+              v-for="(day, index) in calendarDays"
+              :key="index"
+              type="button"
+              :disabled="day.disabled || !day.isCurrentMonth"
+              :class="cn(
+                'h-8 w-8 text-sm rounded-md transition-colors',
+                'hover:bg-accent hover:text-accent-foreground',
+                'focus:bg-accent focus:text-accent-foreground focus:outline-none',
+                {
+                  'text-muted-foreground cursor-not-allowed': day.disabled || !day.isCurrentMonth,
+                  'bg-primary text-primary-foreground': day.isSelected,
+                  'hover:bg-primary/90': day.isSelected,
+                },
+              )"
+              @click="selectDate(day)"
+            >
+              {{ day.day }}
+            </button>
+          </div>
+
+          <!-- Time Picker -->
+          <div v-if="enableTime" class="mt-4 pt-3 border-t">
+            <div class="flex items-center justify-center gap-4">
+              <!-- Minutes -->
+              <div class="text-center">
+                <div class="flex gap-1 items-center">
+                  <Button
+                    size="icon"
+                    type="button"
+                    variant="outline"
+                    class="size-6 "
+                    @click="incrementMinute"
+                    @mousedown="startRapidIncrement('minute')"
+                    @mouseup="stopRapidInterval('minute')"
+                    @mouseleave="stopRapidInterval('minute')"
+                  >
+                    <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
+                  </Button>
+                  <input
+                    v-model="selectedMinute"
+                    type="number"
+                    min="0"
+                    max="59"
+                    class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
+                    @input="validateAndUpdateMinute"
+                  >
+                  <Button
+                    size="icon"
+                    type="button"
+                    variant="outline"
+                    class="size-6"
+                    @click="decrementMinute"
+                    @mousedown="startRapidDecrement('minute')"
+                    @mouseup="stopRapidInterval('minute')"
+                    @mouseleave="stopRapidInterval('minute')"
+                  >
+                    <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
+                  </Button>
+                </div>
+                <div class="text-xs text-muted-foreground mt-1">
+                  دقیقه
+                </div>
+              </div>
+              <!-- Hours -->
+              <div class="text-center">
+                <div class="flex gap-1 items-center">
+                  <Button
+                    size="icon"
+                    type="button"
+                    variant="outline"
+                    class="size-6"
+                    @click="incrementHour"
+                    @mousedown="startRapidIncrement('hour')"
+                    @mouseup="stopRapidInterval('hour')"
+                    @mouseleave="stopRapidInterval('hour')"
+                  >
+                    <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
+                  </Button>
+                  <input
+                    v-model="selectedHour"
+                    type="number"
+                    min="0"
+                    max="23"
+                    class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
+                    @input="validateAndUpdateHour"
+                  >
+                  <Button
+                    size="icon"
+                    type="button"
+                    variant="outline"
+                    class="size-6"
+                    @click="decrementHour"
+                    @mousedown="startRapidDecrement('hour')"
+                    @mouseup="stopRapidInterval('hour')"
+                    @mouseleave="stopRapidInterval('hour')"
+                  >
+                    <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
+                  </Button>
+                </div>
+                <div class="text-xs text-muted-foreground mt-1">
+                  ساعت
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </UseTemplate>
+
+  <!-- Desktop Popover -->
+  <Popover v-if="isDesktop" v-model:open="isOpen">
     <PopoverTrigger as-child>
       <Button
         variant="outline"
@@ -386,218 +615,29 @@ watch(modelValue, (newValue) => {
       </Button>
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0" align="start">
-      <div class="flex flex-col gap-2 p-2" dir="rtl">
-        <!-- Presets -->
-        <div v-if="showPresets" class="border-b pb-2">
-          <Select @update:model-value="selectPreset">
-            <SelectTrigger class="w-full">
-              <SelectValue placeholder="انتخاب سریع" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
-                v-for="preset in presetItems"
-                :key="preset.value"
-                :value="preset.value.toString()"
-              >
-                {{ preset.label }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- Calendar Content -->
-        <div class="p-1">
-          <!-- Year Picker View -->
-          <div v-if="showYearPicker" class="space-y-4">
-            <div class="flex items-center justify-between mb-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                @click="showYearPicker = false"
-              >
-                بازگشت
-              </Button>
-              <div class="text-sm font-medium">
-                انتخاب سال
-              </div>
-              <div />
-            </div>
-
-            <div
-              ref="yearScrollContainer"
-              class="max-h-64 w-64 overflow-y-auto space-y-1 scrollbar-thin"
-            >
-              <button
-                v-for="year in yearRange"
-                :key="year"
-                :data-year="year"
-                type="button"
-                :class="cn(
-                  'w-full p-2 text-sm rounded-md transition-colors text-center',
-                  'hover:bg-accent hover:text-accent-foreground',
-                  {
-                    'bg-primary text-primary-foreground': year === currentYear,
-                    'font-medium': year === getCurrentPersianYear(),
-                  },
-                )"
-                @click="selectYear(year)"
-              >
-                {{ year }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Calendar View -->
-          <div v-else>
-            <!-- Header with navigation -->
-            <div class="flex items-center justify-between mb-4">
-              <button
-                class="p-1 hover:bg-accent rounded-md transition-colors"
-                type="button"
-                @click="goToPreviousMonth"
-              >
-                <ChevronRight class="size-4" />
-              </button>
-
-              <button
-                class="text-sm font-medium hover:bg-accent rounded-md px-2 py-1 transition-colors"
-                type="button"
-                @click="toggleYearPicker"
-              >
-                {{ currentMonthName }} {{ currentYear }}
-              </button>
-
-              <button
-                class="p-1 hover:bg-accent rounded-md transition-colors"
-                type="button"
-                @click="goToNextMonth"
-              >
-                <ChevronLeft class="size-4" />
-              </button>
-            </div>
-
-            <!-- Weekday headers -->
-            <div class="grid grid-cols-7 gap-1 mb-2">
-              <div
-                v-for="weekDay in persianWeekDays"
-                :key="weekDay"
-                class="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground"
-              >
-                {{ weekDay }}
-              </div>
-            </div>
-
-            <!-- Calendar grid -->
-            <div class="grid grid-cols-7 gap-1">
-              <button
-                v-for="(day, index) in calendarDays"
-                :key="index"
-                type="button"
-                :disabled="day.disabled || !day.isCurrentMonth"
-                :class="cn(
-                  'h-8 w-8 text-sm rounded-md transition-colors',
-                  'hover:bg-accent hover:text-accent-foreground',
-                  'focus:bg-accent focus:text-accent-foreground focus:outline-none',
-                  {
-                    'text-muted-foreground cursor-not-allowed': day.disabled || !day.isCurrentMonth,
-                    'bg-primary text-primary-foreground': day.isSelected,
-                    'hover:bg-primary/90': day.isSelected,
-                  },
-                )"
-                @click="selectDate(day)"
-              >
-                {{ day.day }}
-              </button>
-            </div>
-
-            <!-- Time Picker -->
-            <div v-if="enableTime" class="mt-4 pt-3 border-t">
-              <div class="flex items-center justify-center gap-4">
-                <!-- Minutes -->
-                <div class="text-center">
-                  <div class="flex gap-1 items-center">
-                    <Button
-                      size="icon"
-                      type="button"
-                      variant="outline"
-                      class="size-6 "
-                      @click="incrementMinute"
-                      @mousedown="startRapidIncrement('minute')"
-                      @mouseup="stopRapidInterval('minute')"
-                      @mouseleave="stopRapidInterval('minute')"
-                    >
-                      <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
-                    </Button>
-                    <input
-                      v-model="selectedMinute"
-                      type="number"
-                      min="0"
-                      max="59"
-                      class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
-                      @input="validateAndUpdateMinute"
-                    >
-                    <Button
-                      size="icon"
-                      type="button"
-                      variant="outline"
-                      class="size-6"
-                      @click="decrementMinute"
-                      @mousedown="startRapidDecrement('minute')"
-                      @mouseup="stopRapidInterval('minute')"
-                      @mouseleave="stopRapidInterval('minute')"
-                    >
-                      <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
-                    </Button>
-                  </div>
-                  <div class="text-xs text-muted-foreground mt-1">
-                    دقیقه
-                  </div>
-                </div>
-                <!-- Hours -->
-                <div class="text-center">
-                  <div class="flex gap-1 items-center">
-                    <Button
-                      size="icon"
-                      type="button"
-                      variant="outline"
-                      class="size-6"
-                      @click="incrementHour"
-                      @mousedown="startRapidIncrement('hour')"
-                      @mouseup="stopRapidInterval('hour')"
-                      @mouseleave="stopRapidInterval('hour')"
-                    >
-                      <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
-                    </Button>
-                    <input
-                      v-model="selectedHour"
-                      type="number"
-                      min="0"
-                      max="23"
-                      class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
-                      @input="validateAndUpdateHour"
-                    >
-                    <Button
-                      size="icon"
-                      type="button"
-                      variant="outline"
-                      class="size-6"
-                      @click="decrementHour"
-                      @mousedown="startRapidDecrement('hour')"
-                      @mouseup="stopRapidInterval('hour')"
-                      @mouseleave="stopRapidInterval('hour')"
-                    >
-                      <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
-                    </Button>
-                  </div>
-                  <div class="text-xs text-muted-foreground mt-1">
-                    ساعت
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CalendarContent />
     </PopoverContent>
   </Popover>
+
+  <!-- Mobile Drawer -->
+  <Drawer v-else v-model:open="isOpen">
+    <DrawerTrigger as-child>
+      <Button
+        variant="outline"
+        :disabled="disabled"
+        :class="cn(
+          'w-full justify-start text-right font-normal',
+          !selectedDate && 'text-muted-foreground',
+          props.class,
+        )"
+        dir="rtl"
+      >
+        <CalendarIcon class="ml-2 h-4 w-4" />
+        {{ displayValue }}
+      </Button>
+    </DrawerTrigger>
+    <DrawerContent>
+      <CalendarContent />
+    </DrawerContent>
+  </Drawer>
 </template>
