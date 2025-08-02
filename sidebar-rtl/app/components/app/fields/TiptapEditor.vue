@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import type { MediaType } from '~/types/media'
-import Image from '@tiptap/extension-image'
-import StarterKit from '@tiptap/starter-kit'
 import { EditorContent as TiptapEditorContent, useEditor } from '@tiptap/vue-3'
 import { onBeforeUnmount, ref, unref } from 'vue'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
@@ -12,47 +18,48 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import MediaSelect from '~/components/app/medias/MediaSelect.vue'
+import {
+  TiptapImage,
+  TiptapLink,
+  TiptapStarter,
+  TiptapSubscript,
+  TiptapSuperscript,
+  TiptapTaskItem,
+  TiptapTaskList,
+  TiptapTextAlign,
+} from '~/composables/tiptapExt'
 
-interface Props {
-  modelValue?: string
-  placeholder?: string
-}
-
-interface Emits {
-  (e: 'update:modelValue', value: string): void
-  (e: 'mediaSelected', media: MediaType[]): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
-  placeholder: 'شروع به نوشتن کنید...',
-})
-
-const emit = defineEmits<Emits>()
+const value = defineModel<string>({ required: true, default: '' })
 
 const isFullscreen = ref(false)
 const selectedMedias = ref<MediaType[]>([])
 
 const editor = useEditor({
-  content: props.modelValue || `<p>${props.placeholder}</p>`,
+  content: value.value,
   extensions: [
-    StarterKit,
-    Image.configure({
+    TiptapStarter,
+    TiptapImage.configure({
       inline: false,
       allowBase64: true,
       HTMLAttributes: {
         class: 'max-w-full h-auto rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md',
       },
     }),
+    TiptapTaskList,
+    TiptapTaskItem,
+    TiptapTextAlign.configure({
+      types: ['heading', 'paragraph'],
+    }),
+    TiptapLink.configure({
+      openOnClick: false,
+    }),
+    TiptapSuperscript,
+    TiptapSubscript,
   ],
   editorProps: {
     attributes: {
       class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:prose-invert max-w-none focus:outline-none',
     },
-  },
-  onUpdate: ({ editor }) => {
-    const content = editor.getHTML()
-    emit('update:modelValue', content)
   },
 })
 
@@ -103,8 +110,6 @@ function handleMediaSelection(medias: MediaType[]) {
     else {
       console.warn('Media type not supported or missing URL:', media.file_type, media.media_url)
     }
-
-    emit('mediaSelected', medias)
   }
   else {
     console.warn('No medias or editor not available')
@@ -138,9 +143,9 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 // Watch for external content changes
-watch(() => props.modelValue, (newValue) => {
+watch(value, (newValue) => {
   if (editor.value && newValue !== editor.value.getHTML()) {
-    editor.value.commands.setContent(newValue || `<p>${props.placeholder}</p>`)
+    editor.value.commands.setContent(newValue)
   }
 })
 
@@ -169,10 +174,10 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="editor?.isActive('bold') ? 'default' : 'ghost'"
                   :disabled="!editor?.can().chain().focus().toggleBold().run()"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().toggleBold().run()"
                 >
                   <span class="icon-[lucide--bold] size-4" />
@@ -186,10 +191,10 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="editor?.isActive('italic') ? 'default' : 'ghost'"
                   :disabled="!editor?.can().chain().focus().toggleItalic().run()"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().toggleItalic().run()"
                 >
                   <span class="icon-[lucide--italic] size-4" />
@@ -203,10 +208,10 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="editor?.isActive('strike') ? 'default' : 'ghost'"
                   :disabled="!editor?.can().chain().focus().toggleStrike().run()"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().toggleStrike().run()"
                 >
                   <span class="icon-[lucide--strikethrough] size-4" />
@@ -220,10 +225,10 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="editor?.isActive('code') ? 'default' : 'ghost'"
                   :disabled="!editor?.can().chain().focus().toggleCode().run()"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().toggleCode().run()"
                 >
                   <span class="icon-[lucide--code] size-4" />
@@ -235,106 +240,74 @@ onBeforeUnmount(() => {
             </Tooltip>
           </div>
 
-          <!-- Headings -->
+          <!-- Headings Dropdown -->
           <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon"
-                  :variant="editor?.isActive('paragraph') ? 'default' : 'ghost'"
-                  class="h-8 w-8"
-                  @click="editor?.chain().focus().setParagraph().run()"
-                >
-                  <span class="icon-[lucide--pilcrow] size-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button size="icon" class="size-8" variant="ghost">
+                  <span class="icon-[lucide--heading] size-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Paragraph</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon"
-                  :variant="editor?.isActive('heading', { level: 1 }) ? 'default' : 'ghost'"
-                  class="h-8 w-8"
-                  @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
-                >
-                  <span class="text-xs font-bold">H1</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Heading 1</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon"
-                  :variant="editor?.isActive('heading', { level: 2 }) ? 'default' : 'ghost'"
-                  class="h-8 w-8"
-                  @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
-                >
-                  <span class="text-xs font-bold">H2</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Heading 2</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon"
-                  :variant="editor?.isActive('heading', { level: 3 }) ? 'default' : 'ghost'"
-                  class="h-8 w-8"
-                  @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-                >
-                  <span class="text-xs font-bold">H3</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Heading 3</p>
-              </TooltipContent>
-            </Tooltip>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Headings</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem @click="editor?.chain().focus().setParagraph().run()">
+                  <span :class="editor?.isActive('paragraph') ? 'font-bold text-primary' : ''">
+                    Paragraph
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()">
+                  <span :class="editor?.isActive('heading', { level: 1 }) ? 'font-bold text-primary' : ''">
+                    Heading 1
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()">
+                  <span :class="editor?.isActive('heading', { level: 2 }) ? 'font-bold text-primary' : ''">
+                    Heading 2
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()">
+                  <span :class="editor?.isActive('heading', { level: 3 }) ? 'font-bold text-primary' : ''">
+                    Heading 3
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editor?.chain().focus().toggleHeading({ level: 4 }).run()">
+                  <span :class="editor?.isActive('heading', { level: 4 }) ? 'font-bold text-primary' : ''">
+                    Heading 4
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <!-- Lists -->
+          <!-- Lists Dropdown -->
           <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon"
-                  :variant="editor?.isActive('bulletList') ? 'default' : 'ghost'"
-                  class="h-8 w-8"
-                  @click="editor?.chain().focus().toggleBulletList().run()"
-                >
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button size="icon" class="size-8" variant="ghost">
                   <span class="icon-[lucide--list] size-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Bullet List</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger as-child>
-                <Button
-                  size="icon"
-                  :variant="editor?.isActive('orderedList') ? 'default' : 'ghost'"
-                  class="h-8 w-8"
-                  @click="editor?.chain().focus().toggleOrderedList().run()"
-                >
-                  <span class="icon-[lucide--list-ordered] size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Numbered List</p>
-              </TooltipContent>
-            </Tooltip>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Lists</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem @click="editor?.chain().focus().toggleBulletList().run()">
+                  <span :class="editor?.isActive('bulletList') ? 'font-bold text-primary' : ''">
+                    Bullet List
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editor?.chain().focus().toggleOrderedList().run()">
+                  <span :class="editor?.isActive('orderedList') ? 'font-bold text-primary' : ''">
+                    Numbered List
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editor?.chain().focus().toggleTaskList().run()">
+                  <span :class="editor?.isActive('taskList') ? 'font-bold text-primary' : ''">
+                    Task List
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <!-- Blocks -->
@@ -342,9 +315,9 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="editor?.isActive('blockquote') ? 'default' : 'ghost'"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().toggleBlockquote().run()"
                 >
                   <span class="icon-[lucide--quote] size-4" />
@@ -358,9 +331,9 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="editor?.isActive('codeBlock') ? 'default' : 'ghost'"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().toggleCodeBlock().run()"
                 >
                   <span class="icon-[lucide--code-2] size-4" />
@@ -374,9 +347,9 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   variant="ghost"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().setHorizontalRule().run()"
                 >
                   <span class="icon-[lucide--minus] size-4" />
@@ -384,6 +357,117 @@ onBeforeUnmount(() => {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Horizontal Rule</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <!-- Alignment -->
+          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive({ textAlign: 'left' }) ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().setTextAlign('left').run()"
+                >
+                  <span class="icon-[lucide--align-left] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Align Left</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive({ textAlign: 'center' }) ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().setTextAlign('center').run()"
+                >
+                  <span class="icon-[lucide--align-center] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Align Center</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive({ textAlign: 'right' }) ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().setTextAlign('right').run()"
+                >
+                  <span class="icon-[lucide--align-right] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Align Right</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive({ textAlign: 'justify' }) ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().setTextAlign('justify').run()"
+                >
+                  <span class="icon-[lucide--align-justify] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Justify</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <!-- Superscript/Subscript -->
+          <div class="flex items-center gap-1 mr-3 border-r border-border pr-3">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive('superscript') ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().toggleSuperscript().run()"
+                >
+                  <span class="icon-[lucide--superscript] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Superscript</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive('subscript') ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().toggleSubscript().run()"
+                >
+                  <span class="icon-[lucide--subscript] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Subscript</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  size="icon" class="size-8"
+                  :variant="editor?.isActive('link') ? 'default' : 'ghost'"
+                  @click="editor?.chain().focus().toggleLink({ href: '' }).run()"
+                >
+                  <span class="icon-[lucide--link] size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Link</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -408,10 +492,10 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   variant="ghost"
                   :disabled="!editor?.can().chain().focus().undo().run()"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().undo().run()"
                 >
                   <span class="icon-[lucide--undo] size-4" />
@@ -425,10 +509,10 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   variant="ghost"
                   :disabled="!editor?.can().chain().focus().redo().run()"
-                  class="h-8 w-8"
+
                   @click="editor?.chain().focus().redo().run()"
                 >
                   <span class="icon-[lucide--redo] size-4" />
@@ -445,9 +529,9 @@ onBeforeUnmount(() => {
             <Tooltip>
               <TooltipTrigger as-child>
                 <Button
-                  size="icon"
+                  size="icon" class="size-8"
                   :variant="isFullscreen ? 'default' : 'ghost'"
-                  class="h-8 w-8"
+
                   @click="toggleFullscreen"
                 >
                   <span :class="isFullscreen ? 'icon-[lucide--minimize]' : 'icon-[lucide--maximize]'" class="size-4" />
