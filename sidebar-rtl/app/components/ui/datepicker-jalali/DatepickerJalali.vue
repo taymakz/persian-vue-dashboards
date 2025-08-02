@@ -198,26 +198,6 @@ function selectDate(day: any) {
   isOpen.value = false
 }
 
-function goToToday() {
-  const dayjs = useDayjs()
-  dayjs.extend(jalaliPlugin)
-  let today = dayjs().calendar('jalali').format('YYYY/MM/DD')
-
-  if (props.enableTime) {
-    today += ` ${dayjs().format('HH:mm')}`
-    selectedHour.value = dayjs().hour()
-    selectedMinute.value = dayjs().minute()
-  }
-
-  selectedDate.value = today
-  modelValue.value = today
-
-  // Update current view to today's month
-  currentYear.value = getCurrentPersianYear()
-  currentMonth.value = getCurrentPersianMonth()
-  isOpen.value = false
-}
-
 function toggleYearPicker() {
   showYearPicker.value = !showYearPicker.value
 
@@ -498,75 +478,73 @@ watch(modelValue, (newValue) => {
 
             <!-- Time Picker -->
             <div v-if="enableTime" class="mt-4 pt-3 border-t">
-              <div class="flex items-center gap-2 mb-3">
-                <Clock class="size-4" />
-                <span class="text-sm font-medium">زمان</span>
-              </div>
-
               <div class="flex items-center justify-center gap-4">
-                <!-- Hours -->
-                <div class="text-center">
-                  <div class="text-xs text-muted-foreground mb-1">
-                    ساعت
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <button
-                      type="button"
-                      class="p-1 hover:bg-accent rounded text-xs"
-                      @click="incrementHour"
-                    >
-                      +
-                    </button>
-                    <input
-                      v-model="selectedHour"
-                      type="number"
-                      min="0"
-                      max="23"
-                      class="w-12 h-8 text-center bg-accent rounded text-sm font-mono border-0 focus:ring-2 focus:ring-primary focus:outline-none"
-                      @input="validateAndUpdateHour"
-                    >
-                    <button
-                      type="button"
-                      class="p-1 hover:bg-accent rounded text-xs"
-                      @click="decrementHour"
-                    >
-                      -
-                    </button>
-                  </div>
-                </div>
-
-                <div class="text-lg font-bold">
-                  :
-                </div>
-
                 <!-- Minutes -->
                 <div class="text-center">
-                  <div class="text-xs text-muted-foreground mb-1">
-                    دقیقه
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <button
+                  <div class="flex gap-1 items-center">
+                    <Button
+                      size="icon"
                       type="button"
-                      class="p-1 hover:bg-accent rounded text-xs"
+                      variant="outline"
+                      class="size-6 "
                       @click="incrementMinute"
                     >
-                      +
-                    </button>
+                      <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
+                    </Button>
                     <input
                       v-model="selectedMinute"
                       type="number"
                       min="0"
                       max="59"
-                      class="w-12 h-8 text-center bg-accent rounded text-sm font-mono border-0 focus:ring-2 focus:ring-primary focus:outline-none"
+                      class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
                       @input="validateAndUpdateMinute"
                     >
-                    <button
+                    <Button
+                      size="icon"
                       type="button"
-                      class="p-1 hover:bg-accent rounded text-xs"
+                      variant="outline"
+                      class="size-6"
                       @click="decrementMinute"
                     >
-                      -
-                    </button>
+                      <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
+                    </Button>
+                  </div>
+                  <div class="text-xs text-muted-foreground mt-1">
+                    دقیقه
+                  </div>
+                </div>
+                <!-- Hours -->
+                <div class="text-center">
+                  <div class="flex gap-1 items-center">
+                    <Button
+                      size="icon"
+                      type="button"
+                      variant="outline"
+                      class="size-6"
+                      @click="incrementHour"
+                    >
+                      <span class="icon-[lucide--plus] size-4.5 text-muted-foreground" />
+                    </Button>
+                    <input
+                      v-model="selectedHour"
+                      type="number"
+                      min="0"
+                      max="23"
+                      class="w-12 h-8 text-center bg-input border rounded text-sm font-mono focus:ring-2 focus:ring-primary focus:outline-none"
+                      @input="validateAndUpdateHour"
+                    >
+                    <Button
+                      size="icon"
+                      type="button"
+                      variant="outline"
+                      class="size-6"
+                      @click="decrementHour"
+                    >
+                      <span class="icon-[lucide--minus] size-4.5 text-muted-foreground" />
+                    </Button>
+                  </div>
+                  <div class="text-xs text-muted-foreground mt-1">
+                    ساعت
                   </div>
                 </div>
               </div>
