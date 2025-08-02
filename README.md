@@ -30,7 +30,7 @@ A modern collection of Persian/Farsi admin panels and dashboards built with Vue.
 ### Sidebar RTL
 - Sidebar on Right
 
-![Sidebar RTL Dashboard Preview](https://github.com/taymakz/vue-dashboards/assets/sidebar-rtl-dashboard.png)
+![Sidebar RTL Dashboard Preview](https://github.com/taymakz/vue-dashboards/blob/main/assets/sidebar-rtl-dashboard.png)
 
 [🔗 Live Preview](https://vue-dashboards-sidebar-rtl.netlify.app/)
 
