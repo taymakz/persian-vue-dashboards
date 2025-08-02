@@ -10,7 +10,7 @@ const isDark = computed(() => colorMode.preference === 'dark')
 </script>
 
 <template>
-  <div class="flex items-center border-t p-4 ">
+  
     <button
       class="inline-flex items-center rounded-full border p-0"
       aria-label="Toggle Theme"
@@ -58,5 +58,5 @@ const isDark = computed(() => colorMode.preference === 'dark')
         <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
       </svg>
     </button>
-  </div>
+ 
 </template>

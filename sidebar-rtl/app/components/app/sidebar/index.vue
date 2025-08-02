@@ -9,10 +9,9 @@ const route = useRoute()
 watch(
   route,
   () => {
-   mobileState.value = false
+    mobileState.value = false
   },
 )
-
 </script>
 
 <template>
@@ -39,7 +38,15 @@ watch(
     >
       <UserOverview />
       <Content />
-      <Theme />
+      <div class="flex items-center justify-between border-t p-4 ">
+        <Theme />
+        <NuxtLink
+          external target="_blank" class="flex items-center justify-center text-muted-foreground
+         hover:text-primary duration-200 rounded-full border size-7" to="https://github.com/taymakz/vue-dashboards/tree/main/sidebar-rtl"
+        >
+          <span class="icon-[hugeicons--github] size-4" />
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
