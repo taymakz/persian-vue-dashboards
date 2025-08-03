@@ -19,7 +19,7 @@ const { height } = useElementSize(cardWrapper)
     <!-- Content -->
     <main class="sm:container">
       <Card
-        class="bg-card relative mx-auto rounded-xl border max-sm:flex max-sm:min-h-screen max-sm:min-w-screen max-sm:items-center max-sm:justify-center max-sm:overflow-y-auto sm:h-auto sm:max-w-96 "
+        class="relative mx-auto p-6 rounded-xl border max-sm:flex max-sm:min-h-screen max-sm:min-w-screen max-sm:items-center max-sm:justify-center max-sm:overflow-y-auto sm:h-auto sm:max-w-96 "
       >
         <motion.div
           
