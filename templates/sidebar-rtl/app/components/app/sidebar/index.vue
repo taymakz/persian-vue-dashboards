@@ -42,7 +42,7 @@ watch(
         <Theme />
         <NuxtLink
           external target="_blank" class="flex items-center justify-center text-muted-foreground
-         hover:text-primary duration-200 rounded-full border size-7" to="https://github.com/taymakz/vue-dashboards/tree/main/sidebar-rtl"
+         hover:text-primary duration-200 rounded-full border size-7" to="https://github.com/taymakz/persian-vue-dashboards/tree/main/templates/sidebar-rtl"
         >
           <span class="icon-[hugeicons--github] size-4" />
         </NuxtLink>
