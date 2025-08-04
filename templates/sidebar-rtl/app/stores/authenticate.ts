@@ -1,8 +1,7 @@
-import type { AccountUserAuthenticateResultType, AccountUserType } from '~/types/account'
-import { defineStore } from 'pinia'
 import { toast } from 'vue-sonner'
 import FetchApi from '~/composables/api'
 import { AccountUserCurrentDetail, AccountUserLogout } from '~/services/account/user'
+import type { AccountUserAuthenticateResultType, AccountUserType } from '~/types/account'
 
 export const useAuthenticateStore = defineStore('authenticate', () => {
   // State
@@ -14,31 +13,13 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
   const isLogin = computed((): boolean => userDetail.value != null)
   const getUserTokens = computed(() => userTokens.value)
   const getUserDetail = computed(() => userDetail.value)
-  const getUserSubscription = computed(() => userDetail.value?.subscription)
   const getLoading = computed((): boolean => loading.value)
   const getFullname = computed(() => {
     const firstName = userDetail.value?.first_name ?? ''
     const lastName = userDetail.value?.last_name ?? ''
-
     return firstName || lastName ? `${firstName} ${lastName}`.trim() : ''
   })
   const getPhone = computed(() => userDetail.value?.phone)
-  const getBalance = computed(() => userDetail.value?.balance ?? 0)
-  const getGiftBalance = computed(() => userDetail.value?.gift_balance ?? 0)
-  const is_free_plan = computed(() => {
-    const userDetail = getUserDetail.value
-    return !userDetail || !userDetail.subscription || !userDetail.subscription.plan || userDetail.subscription.plan.plan_type === 'FREE'
-  })
-
-  const is_pro_plan = computed(() => {
-    const userDetail = getUserDetail.value
-    return !!userDetail && !!userDetail.subscription && !!userDetail.subscription.plan && userDetail.subscription.plan.plan_type === 'PRO'
-  })
-
-  const is_enterprise_plan = computed(() => {
-    const userDetail = getUserDetail.value
-    return !!userDetail && !!userDetail.subscription && !!userDetail.subscription.plan && userDetail.subscription.plan.plan_type === 'ENTERPRISE'
-  })
   // Actions - Setters
   const SetLoading = (value?: boolean) => {
     if (value)
@@ -221,13 +202,7 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     getUserDetail,
     getLoading,
     getFullname,
-    getUserSubscription,
     getPhone,
-    getBalance,
-    getGiftBalance,
-    is_free_plan,
-    is_pro_plan,
-    is_enterprise_plan,
     SetLoading,
     UpdateUserDetail,
     SetUserTokens,
