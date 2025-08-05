@@ -1,5 +1,6 @@
 export default defineNuxtRouteMiddleware(async () => {
-  if (import.meta.client)
-    return
-  // TODO
+  const cookies = useCookie('session')
+  if (cookies.value) {
+    return navigateTo('/')
+  }
 })
