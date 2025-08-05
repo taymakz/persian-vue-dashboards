@@ -45,8 +45,8 @@ export async function setAuthCookieSession(event: any, tokens: AccountUserTokens
     has_password: decodedAccess.has_password,
     refresh: tokens.refresh,
     access: tokens.access,
-    access_exp: decodedAccess.exp,
-    refresh_exp: decodedRefresh.exp,
+    access_exp: decodedAccess.exp * 1000,
+    refresh_exp: decodedRefresh.exp * 1000,
   }
 
   // Encrypt session before storing in cookie
