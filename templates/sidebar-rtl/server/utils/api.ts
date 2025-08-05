@@ -36,3 +36,11 @@ export function errorResponse(status: number, message?: string): ApiResponseType
     data: null,
   }
 }
+export function successResponse<T>(data: T, message?: string): ApiResponseType<T> {
+  return {
+    status: 200,
+    success: true,
+    message,
+    data,
+  }
+}

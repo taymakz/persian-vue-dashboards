@@ -3,7 +3,6 @@ import { deleteCookie, getCookie } from 'h3'
 import FetchServerApi, { errorResponse } from '~~/server/utils/api'
 import { decryptSession } from '~~/server/utils/session'
 
-// Logout
 export default defineEventHandler(async (event) => {
   const sessionCookie = getCookie(event, 'session')
   if (!sessionCookie) {

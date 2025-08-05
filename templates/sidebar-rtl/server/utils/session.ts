@@ -15,20 +15,20 @@ export async function encryptSession(session: AccountUserSessionType): Promise<s
     .sign(encodedKey)
 }
 
-export async function decryptSession(session: string) {
+export async function decryptSession(session: string): Promise<AccountUserSessionType | null> {
   const { payload } = await jwtVerify(session, encodedKey, {
     algorithms: ['HS256'],
   })
-  return payload
+  return payload as unknown as AccountUserSessionType
 }
 
-export async function getSession(event: H3Event): Promise<AccountUserSessionType | null> {
+export async function getSession(event: H3Event): Promise<string | null> {
   const sessionCookie = getCookie(event, 'session')
   if (!sessionCookie)
     return null
 
   try {
-    const session = await decryptSession(sessionCookie) as unknown as AccountUserSessionType
+    const session = await decryptSession(sessionCookie) as unknown as string
     return session
   }
   catch {
@@ -59,4 +59,8 @@ export async function setAuthCookieSession(event: H3Event, tokens: AccountUserTo
     sameSite: 'strict',
     path: '/',
   })
+}
+export function isExpiredToken(exp: number): boolean {
+  const currentTime = Date.now() - 1000 // Subtract 1 second to avoid issues with token expiry during fetch
+  return exp <= currentTime
 }
