@@ -59,6 +59,7 @@ export async function setAuthCookieSession(event: H3Event, tokens: AccountUserTo
     sameSite: 'strict',
     path: '/',
   })
+  return session
 }
 export function isExpiredTokenSafe(exp: number): boolean {
   const currentTime = Date.now() - 1000 // Subtract 1 second to avoid issues with token expiry during fetch
