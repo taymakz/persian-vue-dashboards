@@ -9,8 +9,12 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 400)
     return errorResponse(400)
   }
+  const session = await decryptSession(sessionCookie)
+  if (!session) {
+    setResponseStatus(event, 400)
+    return errorResponse(400)
+  }
   try {
-    const session = await decryptSession(sessionCookie)
     const result = await FetchServerApi<AccountUserTokensType>(event, '/account/authenticate/logout/', {
       method: 'POST',
       body: { refresh: session.refresh },
