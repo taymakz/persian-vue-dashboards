@@ -1,4 +1,4 @@
-import type { AccountUserType } from "~/types/account"
+import type { AccountUserType } from '#shared/types/account'
 
 export const useAuthenticateStore = defineStore('authenticate', () => {
   // State
