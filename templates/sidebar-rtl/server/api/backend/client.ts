@@ -1,6 +1,6 @@
 import { defineEventHandler, deleteCookie, readBody } from 'h3'
 import FetchServerApi, { errorResponse } from '~~/server/utils/api'
-import { decryptSession, getSession, isExpiredToken } from '~~/server/utils/session'
+import { decryptSession, getSession, isExpiredTokenSafe } from '~~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Check if refresh token is expired
-    const refreshTokenExpired = isExpiredToken(session.refresh_exp)
+    const refreshTokenExpired = isExpiredTokenSafe(session.refresh_exp)
     if (refreshTokenExpired) {
       // Refresh token is expired, clear session cookie
       deleteCookie(event, 'session')
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
       return errorResponse(401, 'لطفا دوباره وارد شوید')
     }
     // Check if access token is expired
-    const accessTokenExpired = isExpiredToken(session.access_exp)
+    const accessTokenExpired = isExpiredTokenSafe(session.access_exp)
 
     // If access token is expired, refresh it
     if (accessTokenExpired) {
