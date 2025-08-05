@@ -1,4 +1,5 @@
 import type { AccountUserSessionAccessJWTType, AccountUserSessionRefreshJWTType, AccountUserSessionType, AccountUserTokensType } from '#shared/types/account'
+import type { H3Event } from 'h3'
 import type { JWTPayload } from 'jose'
 import { getCookie, setCookie } from 'h3'
 import { jwtVerify, SignJWT } from 'jose'
@@ -21,7 +22,7 @@ export async function decryptSession(session: string) {
   return payload
 }
 
-export async function getSession(event: any): Promise<AccountUserSessionType | null> {
+export async function getSession(event: H3Event): Promise<AccountUserSessionType | null> {
   const sessionCookie = getCookie(event, 'session')
   if (!sessionCookie)
     return null
@@ -34,7 +35,7 @@ export async function getSession(event: any): Promise<AccountUserSessionType | n
     return null
   }
 }
-export async function setAuthCookieSession(event: any, tokens: AccountUserTokensType) {
+export async function setAuthCookieSession(event: H3Event, tokens: AccountUserTokensType) {
   const decodedAccess = jwtDecode<AccountUserSessionAccessJWTType>(tokens.access)
   const decodedRefresh = jwtDecode<AccountUserSessionRefreshJWTType>(tokens.refresh)
 
