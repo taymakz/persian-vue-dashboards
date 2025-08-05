@@ -42,6 +42,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     baseApi: '',
+    jwtSecret: '',
     public: {
       baseStorage: '',
     },

@@ -1,4 +1,4 @@
-import type { ApiResponseType } from '~/types/request'
+import type { ApiResponseType } from '#shared/types/request'
 import { toast } from 'vue-sonner'
 
 /**
@@ -41,7 +41,7 @@ export default async function FetchApi<T>(
 }
 
 /**
- * ClientApi - Function to make authenticated API requests with token refresh handling.
+ * ClientApi - Function to make authenticated API requests with automatic token refresh handling.
  * @param {string} url - The API endpoint URL.
  * @param {any} config - Optional Axios-like configuration object.
  * @returns {Promise<ApiResponseType<T>>} - The API response wrapped in a generic type.
@@ -59,15 +59,21 @@ export async function ClientApi<T>(
       data: null,
     } as ApiResponseType<T>
   }
-  const authStore = useAuthenticateStore()
 
-  async function refreshToken() {
-    const { tokens: newTokens } = await authStore.RefreshToken()
-    tokens = newTokens
-  }
   // If access token is expired, try refreshing it
   if (isAuthenticateAccessTokenExpired(tokens.access_exp)) {
-    await refreshToken()
+    const authStore = useAuthenticateStore()
+    const { tokens: newTokens } = await authStore.RefreshToken()
+    tokens = newTokens
+
+    if (!tokens) {
+      return {
+        success: false,
+        status: 401,
+        message: 'لطفاً دوباره وارد شوید',
+        data: null,
+      } as ApiResponseType<T>
+    }
   }
 
   // Set default config and attach access token to headers if available
@@ -76,7 +82,7 @@ export async function ClientApi<T>(
     ...config,
     headers: {
       ...config.headers,
-      Authorization: `Bearer ${tokens!.access}`,
+      Authorization: `Bearer ${tokens.access}`,
     },
   }
 
@@ -89,42 +95,31 @@ export async function ClientApi<T>(
       ...config,
     })) as ApiResponseType<T>
     return result
-    // Old code (Nuxt API backend proxy):
-    // const result = (await $fetch('/api/backend', {
-    //   method: 'POST',
-    //   body: { url, config },
-    //   headers: {
-    //     Authorization: `Bearer ${tokens!.access}`,
-    //   },
-    // })) as ApiResponseType<T>
-    // return result
   }
   catch (error: any) {
     // Handle unauthorized errors and attempt token refresh if needed
     if (error.status === 401) {
-      await refreshToken()
-      config.headers.Authorization = `Bearer ${tokens.access}`
-      // Retry the request after token refresh
-      try {
-        const runtimeConfig = useRuntimeConfig()
-        const baseApi = runtimeConfig.public.baseApi || 'http://localhost:8000'
-        const result = (await $fetch(url, {
-          baseURL: `${baseApi}/api/`,
-          ...config,
-        })) as ApiResponseType<T>
-        return result
-        // Old code (Nuxt API backend proxy):
-        // const result = (await $fetch('/api/backend', {
-        //   method: 'POST',
-        //   body: { url, config },
-        //   headers: {
-        //     Authorization: `Bearer ${tokens.access}`,
-        //   },
-        // })) as ApiResponseType<T>
-        // return result
+      const authStore = useAuthenticateStore()
+      const { tokens: refreshedTokens } = await authStore.RefreshToken()
+
+      if (refreshedTokens) {
+        config.headers.Authorization = `Bearer ${refreshedTokens.access}`
+        // Retry the request after token refresh
+        try {
+          const runtimeConfig = useRuntimeConfig()
+          const baseApi = runtimeConfig.public.baseApi || 'http://localhost:8000'
+          const result = (await $fetch(url, {
+            baseURL: `${baseApi}/api/`,
+            ...config,
+          })) as ApiResponseType<T>
+          return result
+        }
+        catch (newError: any) {
+          return handleAuthError<T>(newError)
+        }
       }
-      catch (newError: any) {
-        return handleAuthError<T>(newError)
+      else {
+        return handleAuthError<T>(error)
       }
     }
     return handleFetchError<T>(error)

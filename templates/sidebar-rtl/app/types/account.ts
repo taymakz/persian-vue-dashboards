@@ -5,8 +5,8 @@ export interface AccountUserType {
   last_name: string
   has_password: boolean
 }
-// Success result of user authentication
-export interface AccountUserAuthenticateResultType {
+
+export interface AccountUserSessionType {
   refresh: string
   access: string
   access_exp: number
