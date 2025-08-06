@@ -29,6 +29,8 @@
     "@vueuse/integrations": "^13.5.0",
     "@vueuse/nuxt": "13.3.0",
     "dayjs-nuxt": "2.1.11",
+    "jose": "^6.0.12",
+    "jwt-decode": "^4.0.0",
     "lucide-vue-next": "^0.514.0",
     "nuxt": "^4.0.2",
     "nuxt-lucide-icons": "1.0.5",

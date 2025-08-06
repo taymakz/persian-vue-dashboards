@@ -42,15 +42,20 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     baseApi: '',
+    jwtSecret: '',
     public: {
       baseStorage: '',
     },
   },
   routeRules: {
     // TODO un Comment on production
-    // '/auth/**': { appMiddleware: 'should-be-logged-out' },
+    '/auth/**': { appMiddleware: 'should-be-logged-out' },
     '/': { redirect: '/dashboard' },
-    // '/dashboard': { appMiddleware: 'should-be-logged-in' },
+    '/dashboard': { appMiddleware: 'should-be-logged-in' },
+    '/account/**': { appMiddleware: 'should-be-logged-in' },
+    '/products/**': { appMiddleware: 'should-be-logged-in' },
+    '/medias/**': { appMiddleware: 'should-be-logged-in' },
+    '/fields': { appMiddleware: 'should-be-logged-in' },
   },
   future: {
     compatibilityVersion: 4,

@@ -1,13 +1,9 @@
-import { defineEventHandler, getHeader, readBody } from 'h3'
-
-interface BackendRequestBody {
-  url: string
-  config: any
-}
+import { defineEventHandler, readBody } from 'h3'
+import FetchServerApi from '~~/server/utils/api'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<BackendRequestBody>(event)
-  const { url, config } = body
+  const body = await readBody(event)
+  const { url, config = {} } = body
 
   if (!url) {
     throw createError({
@@ -17,27 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const runtimeConfig = useRuntimeConfig()
-    const baseApi = runtimeConfig.public.baseApi || 'http://localhost:8000'
-
-    // Extract token from request headers
-    const token = getHeader(event, 'Authorization')
-
-    // Add the token to the headers of the outgoing request if it exists
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: token,
-      }
-    }
-
-    // Make the request to the backend
-    const response = await $fetch(url, {
-      baseURL: `${baseApi}/api/`,
-      ...config,
-    })
-
-    return response
+    return await FetchServerApi(event, url, ...config)
   }
   catch (error: any) {
     return {

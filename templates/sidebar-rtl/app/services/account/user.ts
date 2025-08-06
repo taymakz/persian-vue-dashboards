@@ -1,6 +1,5 @@
+import type { AccountUserType } from '~/types/account'
 import type { ApiResponseType } from '~/types/request'
-import FetchApi from '~/composables/api'
-import type { AccountUserAuthenticateResultType, AccountUserType } from '~/types/account'
 
 const basePrefix = '/app/account'
 
@@ -9,25 +8,23 @@ export async function AccountUserCurrentDetail(): Promise<ApiResponseType<Accoun
   return ClientApi(`${basePrefix}/authenticate/current/`)
 }
 
-// Logout user
-export async function AccountUserLogout(refresh: string): Promise<ApiResponseType<null>> {
-  return ClientApi(`${basePrefix}/authenticate/logout/`, {
-    method: 'POST',
-    body: JSON.stringify({ refresh }),
-  })
-}
-
-
-// Authenticate user with password
+// Authenticate user with password (now handled by server endpoint)
 export async function AccountUserAuthenticatePassword({
   email,
   password,
 }: {
   email: string
   password: string
-}): Promise<ApiResponseType<AccountUserAuthenticateResultType>> {
-  return FetchApi(`${basePrefix}/authenticate/password/`, {
+}) {
+  return $fetch('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: { email, password },
+  })
+}
+
+// Logout user (now handled by server endpoint)
+export async function AccountUserLogout() {
+  return $fetch('/api/auth/logout', {
+    method: 'POST',
   })
 }
