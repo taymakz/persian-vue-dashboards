@@ -23,8 +23,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // Static JWT payloads
-  const accessPayload = { ...user, exp: Math.floor(Date.now() / 1000) + 10 }
-  const refreshPayload = { exp: Math.floor(Date.now() / 1000) + 30 }
+  const accessPayload = { ...user, exp: Math.floor(Date.now() / 1000) + 3 }
+  const refreshPayload = { exp: Math.floor(Date.now() / 1000) + 40 }
 
   // Sign JWTs with a static secret
   const secret = new TextEncoder().encode('test_secret')

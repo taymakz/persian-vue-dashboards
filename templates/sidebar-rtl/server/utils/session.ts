@@ -5,8 +5,8 @@ import { getCookie, setCookie } from 'h3'
 import { jwtVerify, SignJWT } from 'jose'
 import { jwtDecode } from 'jwt-decode'
 
-const runtimeConfig = useRuntimeConfig()
-const JWT_SECRET = runtimeConfig.jwtSecret || 'default_secret_key'
+// eslint-disable-next-line node/prefer-global/process
+const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_key'
 const encodedKey = new TextEncoder().encode(JWT_SECRET)
 
 export async function encryptSession(session: AccountUserSessionType): Promise<string> {

@@ -40,20 +40,22 @@ useHead({
     </NuxtLayout>
     <!-- Toast -->
     <div class="fixed z-100">
-      <Toaster
-        :theme="(color.value as 'dark') || 'light'"
-        :position="!isDesktop ? 'top-center' : dir === 'rtl' ? 'bottom-left' : 'bottom-right'"
-        close-button
-        rich-colors
-        :toast-options="{
-          style: {
-            padding: '24px 32px',
-            fontSize: '14px',
-            fontFamily: 'Vazir',
-          },
-          duration: 5000,
-        }"
-      />
+      <ClientOnly>
+        <Toaster
+          :theme="(color.value as 'dark') || 'light'"
+          :position="!isDesktop ? 'top-center' : dir === 'rtl' ? 'bottom-left' : 'bottom-right'"
+          close-button
+          rich-colors
+          :toast-options="{
+            style: {
+              padding: '24px 32px',
+              fontSize: '14px',
+              fontFamily: 'Vazir',
+            },
+            duration: 5000,
+          }"
+        />
+      </ClientOnly>
     </div>
   </div>
 </template>

@@ -34,7 +34,7 @@ async function submit(_values: any) {
     toast.error(result.message || 'خطا در ورود به سیستم. لطفا دوباره تلاش کنید.')
     return
   }
-  authStore.LoginUser(result.data!)
+  await authStore.LoginUser(result.data!)
   loading.value = false
 }
 </script>
