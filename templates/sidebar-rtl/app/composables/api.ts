@@ -18,21 +18,10 @@ export default async function FetchApi<T>(
   }
 
   try {
-    // Fetch directly from backend
-    const runtimeConfig = useRuntimeConfig()
-    const baseApi = runtimeConfig.public.baseApi || 'http://localhost:8000'
-    const result = (await $fetch(url, {
-      baseURL: `${baseApi}/api/`,
-      ...config,
-    })) as ApiResponseType<T>
-
-    return result
-    // Old code (Nuxt API backend proxy):
-    // const result = (await $fetch('/api/backend', {
-    //   method: 'POST',
-    //   body: { url, config },
-    // })) as ApiResponseType<T>
-    // return result
+    return await $fetch('/api/backend', {
+      method: 'POST',
+      body: { url, config },
+    }) as ApiResponseType<T>
   }
   catch (error: any) {
     // Handle error based on HTTP status or specific error message
@@ -50,8 +39,8 @@ export async function ClientApi<T>(
   url: string,
   config: any = {},
 ): Promise<ApiResponseType<T>> {
-  let tokens = getAuthenticateTokens()
-  if (!tokens) {
+  const cookie = useCookie('session')
+  if (!cookie.value) {
     return {
       success: false,
       status: 0,
@@ -60,68 +49,22 @@ export async function ClientApi<T>(
     } as ApiResponseType<T>
   }
 
-  // If access token is expired, try refreshing it
-  if (isAuthenticateAccessTokenExpired(tokens.access_exp)) {
-    const authStore = useAuthenticateStore()
-    const { tokens: newTokens } = await authStore.RefreshToken()
-    tokens = newTokens
-
-    if (!tokens) {
-      return {
-        success: false,
-        status: 401,
-        message: 'لطفاً دوباره وارد شوید',
-        data: null,
-      } as ApiResponseType<T>
-    }
-  }
-
   // Set default config and attach access token to headers if available
   config = {
     method: 'GET',
     ...config,
     headers: {
       ...config.headers,
-      Authorization: `Bearer ${tokens.access}`,
     },
   }
 
   try {
-    // Fetch directly from backend
-    const runtimeConfig = useRuntimeConfig()
-    const baseApi = runtimeConfig.public.baseApi || 'http://localhost:8000'
-    const result = (await $fetch(url, {
-      baseURL: `${baseApi}/api/`,
-      ...config,
-    })) as ApiResponseType<T>
-    return result
+    return await $fetch('/api/backend/client', {
+      method: 'POST',
+      body: { url, config },
+    }) as ApiResponseType<T>
   }
   catch (error: any) {
-    // Handle unauthorized errors and attempt token refresh if needed
-    if (error.status === 401) {
-      const authStore = useAuthenticateStore()
-      const { tokens: refreshedTokens } = await authStore.RefreshToken()
-
-      if (refreshedTokens) {
-        config.headers.Authorization = `Bearer ${refreshedTokens.access}`
-        // Retry the request after token refresh
-        try {
-          const runtimeConfig = useRuntimeConfig()
-          const baseApi = runtimeConfig.public.baseApi || 'http://localhost:8000'
-          const result = (await $fetch(url, {
-            baseURL: `${baseApi}/api/`,
-            ...config,
-          })) as ApiResponseType<T>
-          return result
-        }
-        catch (newError: any) {
-          return handleAuthError<T>(newError)
-        }
-      }
-      else {
-        return handleAuthError<T>(error)
-      }
-    }
     return handleFetchError<T>(error)
   }
 }
@@ -160,30 +103,4 @@ function handleFetchError<T>(error: any): ApiResponseType<T> {
       data: null,
     } as ApiResponseType<T>
   }
-}
-
-/**
- * handleAuthError - Function to handle authentication-specific errors during retry.
- * @param {any} error - Error object after retry.
- * @returns {ApiResponseType<T>} - Error response in the expected format.
- */
-function handleAuthError<T>(error: any): ApiResponseType<T> {
-  const authStore = useAuthenticateStore()
-  const router = useRouter()
-
-  if (error.status === 401 && authStore.getUserTokens) {
-    if (!router.currentRoute.value.fullPath.includes('/account')) {
-      navigateTo({
-        path: '/account',
-        query: { backUrl: router.currentRoute.value.fullPath || '/' },
-      })
-    }
-    return {
-      success: false,
-      status: error.response?.status,
-      message: 'لطفا مجددا وارد حساب خود شوید',
-      data: null,
-    } as ApiResponseType<T>
-  }
-  return handleFetchError<T>(error)
 }
