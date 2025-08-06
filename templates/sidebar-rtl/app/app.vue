@@ -10,7 +10,9 @@ const dir = computed(() => textDirection.value === 'rtl' ? 'rtl' : 'ltr')
 const color = useColorMode()
 const isDesktop = useMediaQuery(appDesktopStartMinWidth)
 
-// useAuthenticateStore().SetUserDetail()
+callOnce(() => {
+  useAuthenticateStore().UpdateUserSession()
+})
 
 useHead({
   titleTemplate: (titleChunk) => {
@@ -47,7 +49,7 @@ useHead({
           style: {
             padding: '24px 32px',
             fontSize: '14px',
-            fontFamily: 'IRANYekan',
+            fontFamily: 'Vazir',
           },
           duration: 5000,
         }"

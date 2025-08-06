@@ -12,6 +12,7 @@ useHead({
   title: 'ورود / ثبت نام',
 })
 
+const authStore = useAuthenticateStore()
 const loading = ref<boolean>(false)
 
 async function submit(_values: any) {
@@ -20,12 +21,20 @@ async function submit(_values: any) {
     
   loading.value = true
 
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000))
-
-  // Show success toast
-  toast.success('ورود با موفقیت انجام شد!')
-
+  const result = await $fetch('/api/auth/login', {
+    method: 'POST',
+    body: {
+      email: _values.email,
+      password: _values.password,
+    },
+  })
+  if(!result.success){
+    loading.value = false
+    // Show error toast
+    toast.error(result.message || 'خطا در ورود به سیستم. لطفا دوباره تلاش کنید.')
+    return
+  }
+  authStore.LoginUser(result.data!)
   loading.value = false
 }
 </script>

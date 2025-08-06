@@ -1,4 +1,5 @@
 import type { AccountUserType } from '#shared/types/account'
+import { toast } from 'vue-sonner'
 
 export const useAuthenticateStore = defineStore('authenticate', () => {
   // State
@@ -14,6 +15,8 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     const lastName = userDetail.value?.last_name ?? ''
     return firstName || lastName ? `${firstName} ${lastName}`.trim() : ''
   })
+  const sessionCookie = useCookie('session', { watch: true })
+  const route = useRoute()
   // Actions - Setters
   const SetLoading = (value?: boolean) => {
     if (value)
@@ -21,13 +24,47 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     else loading.value = !loading.value
   }
 
-  const UpdateUserDetail = (data: Partial<AccountUserType>) => {
+  const ModifyUserDetail = (data: Partial<AccountUserType>) => {
     userDetail.value = {
       ...userDetail.value,
       ...data,
     } as AccountUserType
   }
-
+  const UpdateUserSession = async () => {
+    if (!sessionCookie.value)
+      return
+    loading.value = true
+    try {
+      const result = await $fetch<AccountUserType>('/api/auth/session')
+      if (result) {
+        userDetail.value = result
+      }
+    }
+    catch (error) {
+      console.error('Failed to update session:', error)
+    }
+    finally {
+      loading.value = false
+    }
+  }
+  const LoginUser = async (data: AccountUserType) => {
+    ModifyUserDetail(data)
+    toast.success('ورود با موفقیت انجام شد!')
+    const backUrl: any = route.query.backUrl || '/'
+    return await navigateTo(backUrl)
+  }
+  const LogoutUser = async () => {
+    try {
+      await $fetch('/api/auth/logout', { method: 'POST' })
+      toast.success('با موفقیت خارج شدید')
+      userDetail.value = null
+      sessionCookie.value = null
+      await navigateTo('/')
+    }
+    catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
   // Return Store
   return {
     isLogin,
@@ -35,6 +72,9 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     getLoading,
     getFullname,
     SetLoading,
-    UpdateUserDetail,
+    ModifyUserDetail,
+    UpdateUserSession,
+    LoginUser,
+    LogoutUser
   }
 })
