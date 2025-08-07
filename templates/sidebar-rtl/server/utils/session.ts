@@ -22,13 +22,13 @@ export async function decryptSession(session: string): Promise<AccountUserSessio
   return payload as unknown as AccountUserSessionType
 }
 
-export async function getSession(event: H3Event): Promise<string | null> {
+export async function getSession(event: H3Event): Promise<AccountUserSessionType | null> {
   const sessionCookie = getCookie(event, 'session')
   if (!sessionCookie)
     return null
 
   try {
-    const session = await decryptSession(sessionCookie) as unknown as string
+    const session = await decryptSession(sessionCookie) as unknown as AccountUserSessionType
     return session
   }
   catch {
@@ -52,13 +52,15 @@ export async function setAuthCookieSession(event: H3Event, tokens: AccountUserTo
 
   // Encrypt session before storing in cookie
   const encryptedSession = await encryptSession(session)
-
+  deleteCookie(event, 'session') // Clear existing cookie
+  // Set new session cookie with encrypted session data
   setCookie(event, 'session', encryptedSession, {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
     path: '/',
   })
+  
   return session
 }
 export function isExpiredTokenSafe(exp: number): boolean {
