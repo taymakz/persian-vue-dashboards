@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     }
     if (accessTokenExpired && !refreshTokenExpired) {
       // refresh the access token using the refresh token
-      const result = await $fetch('/api/auth/refresh', {
+      const result = await event.$fetch('/api/auth/refresh', {
         method: 'POST',
         body: { refresh: session.refresh },
       })
