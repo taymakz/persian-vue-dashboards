@@ -13,20 +13,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Get session from cookie
-    const rawSession = await getSession(event)
-    if (!rawSession) {
-      setResponseStatus(event, 401)
-      return errorResponse(401, 'لطفا دوباره وارد شوید')
-    }
-    const session = await decryptSession(rawSession)
-
+    const session = await getSession(event)
     if (!session) {
-      // Session decryption failed
-      deleteCookie(event, 'session') // Clear session cookie
       setResponseStatus(event, 401)
       return errorResponse(401, 'لطفا دوباره وارد شوید')
     }
-
     // Check if refresh token is expired
     const refreshTokenExpired = isExpiredTokenSafe(session.refresh_exp)
     if (refreshTokenExpired) {
