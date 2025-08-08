@@ -23,7 +23,7 @@ const links = [
     <li>
       <button
         class="block w-full text-start cursor-pointer text-muted-foreground px-2 py-2.5 hover:bg-accent/50 hover:text-accent-foreground rounded-md duration-200"
-        :disabled="authStore.getLoading" @click="authStore.Logout()"
+        :disabled="authStore.getLoading" @click="authStore.LogoutUser()"
       >
         خروج از حساب
       </button>

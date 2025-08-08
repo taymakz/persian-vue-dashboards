@@ -15,15 +15,16 @@ export default defineEventHandler(async (event) => {
     return errorResponse(400)
   }
   try {
-    const result = await FetchServerApi<AccountUserTokensType>(event, '/account/authenticate/logout/', {
-      method: 'POST',
-      body: { refresh: session.refresh },
-    })
-    if (result.success) {
-      // Clear session cookie
-      deleteCookie(event, 'session')
-    }
-    return result
+    // const result = await FetchServerApi<AccountUserTokensType>(event, '/account/authenticate/logout/', {
+    //   method: 'POST',
+    //   body: { refresh: session.refresh },
+    // })
+    // if (result.success) {
+    //   // Clear session cookie
+    //   deleteCookie(event, 'session')
+    // }
+    deleteCookie(event, 'session')
+    return successResponse(null, 'با موفقیت خارج شدید')
   }
   catch (error: any) {
     setResponseStatus(event, error.status || 500)

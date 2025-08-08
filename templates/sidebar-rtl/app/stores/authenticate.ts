@@ -15,7 +15,6 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     const lastName = userDetail.value?.last_name ?? ''
     return firstName || lastName ? `${firstName} ${lastName}`.trim() : ''
   })
-  const sessionCookie = useCookie('session', { watch: true })
   const route = useRoute()
   // Actions - Setters
   const SetLoading = (value?: boolean) => {
@@ -31,13 +30,11 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     } as AccountUserType
   }
   const UpdateUserSession = async () => {
-    if (!sessionCookie.value)
-      return
     loading.value = true
     try {
-      const result = await $fetch<AccountUserType>('/api/auth/session')
+      const result = await $fetch<ApiResponseType<AccountUserType>>('/api/auth/session')
       if (result) {
-        userDetail.value = result
+        userDetail.value = result.data
       }
     }
     catch (error) {
@@ -58,8 +55,7 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
       await $fetch('/api/auth/logout', { method: 'POST' })
       toast.success('با موفقیت خارج شدید')
       userDetail.value = null
-      sessionCookie.value = null
-      await navigateTo('/')
+      await navigateTo('/auth/login')
     }
     catch (error) {
       console.error('Logout failed:', error)
@@ -75,6 +71,6 @@ export const useAuthenticateStore = defineStore('authenticate', () => {
     ModifyUserDetail,
     UpdateUserSession,
     LoginUser,
-    LogoutUser
+    LogoutUser,
   }
 })
