@@ -34,7 +34,7 @@ A modern collection of Persian/Farsi admin panels and dashboards built with Vue.
 
 [🔗 Live Preview](https://vue-dashboards-sidebar-rtl.netlify.app/)
 
-### Vercel RTL (Soon)
+### Vercel RTL
 - Header Navigation
 
 ![Vercel RTL Dashboard Preview](https://github.com/taymakz/vue-dashboards/blob/main/assets/vercel-rtl-dashboard.png)
