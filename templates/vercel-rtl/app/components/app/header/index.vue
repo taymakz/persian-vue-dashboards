@@ -19,7 +19,7 @@ const { range } = useRange(0, 50, 1, 0.8)
         <div class="flex items-center gap-4.5 ps-12">
           <span class="h-5 w-px bg-border-lighter rounded-full -rotate-25" />
           <p>
-            منوفای
+            ادمین پنل
           </p>
         </div>
       </div>
