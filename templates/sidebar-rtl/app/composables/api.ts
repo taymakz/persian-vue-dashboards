@@ -11,16 +11,10 @@ export default async function FetchApi<T>(
   url: string,
   config: any = {},
 ): Promise<ApiResponseType<T>> {
-  // Set default configuration values
-  config = {
-    method: 'GET',
-    ...config,
-  }
-
   try {
-    return await $fetch('/api/backend', {
+    return await $fetch(`/api/backend?url=${encodeURIComponent(url)}`, {
       method: 'POST',
-      body: { url, config },
+      ...config,
     }) as ApiResponseType<T>
   }
   catch (error: any) {
@@ -39,8 +33,9 @@ export async function ClientApi<T>(
   url: string,
   config: any = {},
 ): Promise<ApiResponseType<T>> {
-  const cookie = useCookie('session')
-  if (!cookie.value) {
+  const isValidSession = await $fetch('/api/auth/validate-session')
+
+  if (!isValidSession.valid) {
     return {
       success: false,
       status: 0,
@@ -48,21 +43,12 @@ export async function ClientApi<T>(
       data: null,
     } as ApiResponseType<T>
   }
-
-  // Set default config and attach access token to headers if available
-  config = {
-    method: 'GET',
-    ...config,
-    headers: {
-      ...config.headers,
-    },
-  }
-
   try {
-    return await $fetch('/api/backend/client', {
+    return await $fetch(`/api/backend/client?url=${encodeURIComponent(url)}&method=${config.method || 'GET'}`, {
       method: 'POST',
-      body: { url, config },
+      ...config,
     }) as ApiResponseType<T>
+    // }
   }
   catch (error: any) {
     return handleFetchError<T>(error)
