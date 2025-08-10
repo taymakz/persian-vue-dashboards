@@ -59,8 +59,9 @@ export async function setAuthCookieSession(event: H3Event, tokens: AccountUserTo
     secure: true,
     sameSite: 'strict',
     path: '/',
+    maxAge: 60 * 60 * 24 * 365, // 1 year in seconds
   })
-  
+
   return session
 }
 export function isExpiredTokenSafe(exp: number): boolean {
