@@ -6,12 +6,12 @@ import { decryptSession } from '~~/server/utils/session'
 export default defineEventHandler(async (event) => {
   const sessionCookie = getCookie(event, 'session')
   if (!sessionCookie) {
-    setResponseStatus(event, 400)
+
     return errorResponse(400)
   }
   const session = await decryptSession(sessionCookie)
   if (!session) {
-    setResponseStatus(event, 400)
+
     return errorResponse(400)
   }
   try {
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     return successResponse(null, 'با موفقیت خارج شدید')
   }
   catch (error: any) {
-    setResponseStatus(event, error.status || 500)
+
     return errorResponse(error.status, error.message)
   }
 })

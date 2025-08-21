@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!result.success) {
-      setResponseStatus(event, result.status || 500)
+
       return errorResponse(result.status, result.message)
     }
     // set cookie in refresh too
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
   }
   catch (error: any) {
-    setResponseStatus(event, error.status || 500)
+
     return errorResponse(error.status, error.message)
   }
 })

@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     return successResponse(data)
   }
   catch (error: any) {
-    setResponseStatus(event, error.status || 500)
+
     return errorResponse(error.status, error.message)
   }
 })

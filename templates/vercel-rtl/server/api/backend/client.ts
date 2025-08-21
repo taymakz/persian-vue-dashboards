@@ -8,19 +8,19 @@ export default defineEventHandler(async (event) => {
   const method = (getQuery(event).method?.toString().toUpperCase() as RequestMethod) || 'GET'
 
   if (!url) {
-    setResponseStatus(event, 400)
+
     return errorResponse(400, 'آدرسی برای درخواست مشخص نشده است')
   }
 
   try {
     const session = await getSession(event)
     if (!session) {
-      setResponseStatus(event, 401)
+
       return errorResponse(401, 'لطفا دوباره وارد شوید')
     }
     if (isExpiredTokenSafe(session.refresh_exp)) {
       deleteCookie(event, 'session')
-      setResponseStatus(event, 401)
+
       return errorResponse(401, 'لطفا دوباره وارد شوید')
     }
     if (isExpiredTokenSafe(session.access_exp)) {
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       })
       if (!result.success) {
         deleteCookie(event, 'session')
-        setResponseStatus(event, 401)
+
         return errorResponse(401, 'لطفا دوباره وارد شوید')
       }
     }
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     else if (incomingContentType.includes('multipart/form-data')) {
       const formData = await readMultipartFormData(event)
       if (!formData) {
-        setResponseStatus(event, 400)
+
         return errorResponse(400, 'داده‌های فرم نامعتبر است')
       }
 
@@ -94,10 +94,10 @@ export default defineEventHandler(async (event) => {
   catch (error: any) {
     if (error.statusCode === 401) {
       deleteCookie(event, 'session')
-      setResponseStatus(event, 401)
+
       return errorResponse(401, 'لطفا دوباره وارد شوید')
     }
-    setResponseStatus(event, error.status || 500)
+
     return errorResponse(error.status || 500, 'مشکلی در عملیات رخ داده است')
   }
 })

@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       body: { email, password, otp },
     })
     if (!result.success) {
-      setResponseStatus(event, result.status || 500)
+
       return errorResponse(result.status, result.message)
     }
     const session = await setAuthCookieSession(event, result.data)
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     }
   }
   catch (error: any) {
-    setResponseStatus(event, error.status || 500)
+
     return errorResponse(error.status, error.message)
   }
 })

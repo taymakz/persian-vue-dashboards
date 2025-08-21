@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const method = (getQuery(event).method?.toString().toUpperCase() as RequestMethod) || 'GET'
 
   if (!url) {
-    setResponseStatus(event, 400)
+
     return errorResponse(400, 'URL is required')
   }
 
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     else if (incomingContentType.includes('multipart/form-data')) {
       const formData = await readMultipartFormData(event)
       if (!formData) {
-        setResponseStatus(event, 400)
+
         return errorResponse(400, 'Invalid form data')
       }
 
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
     })
   }
   catch (error: any) {
-    setResponseStatus(event, error.status || 500)
+
     return errorResponse(error.status || 500, error.message || 'An error occurred')
   }
 })
